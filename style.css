@@ -1,0 +1,371 @@
+/* ── RESET & TOKENS ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink:    #111111;
+  --ink-2:  #444444;
+  --ink-3:  #888888;
+  --rule:   #e0e0e0;
+  --bg:     #f7f7f7;
+  --white:  #ffffff;
+  --accent: #111111;
+  --ok:     #1a7a4a;
+  --warn:   #a05f00;
+  --danger: #b52020;
+  --info:   #1a4a7a;
+  --sidebar-w: 220px;
+  --header-h:  52px;
+  --radius: 6px;
+  --shadow: 0 1px 4px rgba(0,0,0,.08);
+}
+
+body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: var(--bg); color: var(--ink); height: 100vh; display: flex; overflow: hidden; font-size: 13px; }
+
+/* ── SIDEBAR ─────────────────────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  background: var(--white);
+  border-right: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  z-index: 10;
+}
+.sidebar-logo {
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid var(--rule);
+}
+.sidebar-logo .logo-title { font-size: 15px; font-weight: 700; letter-spacing: -.3px; color: var(--ink); }
+.sidebar-logo .logo-sub { font-size: 10px; color: var(--ink-3); margin-top: 2px; text-transform: uppercase; letter-spacing: .5px; }
+
+.nav-section {
+  padding: 14px 16px 4px;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--ink-3);
+}
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 9px 16px;
+  background: none;
+  border: none;
+  border-left: 2px solid transparent;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  text-align: left;
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+  line-height: 1.3;
+}
+.tab-btn:hover { background: var(--bg); color: var(--ink); }
+.tab-btn.active { background: var(--bg); color: var(--ink); border-left-color: var(--ink); font-weight: 600; }
+.tab-btn .ico { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
+
+/* ── MAIN ────────────────────────────────────────────────────────── */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.topbar {
+  height: var(--header-h);
+  background: var(--white);
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  flex-shrink: 0;
+}
+.topbar-title { font-size: 13.5px; font-weight: 600; color: var(--ink); }
+.topbar-status { font-size: 11px; color: var(--ink-3); display: flex; align-items: center; gap: 6px; }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ok); }
+
+.content { flex: 1; overflow-y: auto; padding: 24px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── TYPOGRAPHY ──────────────────────────────────────────────────── */
+.page-title { font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+.page-sub { font-size: 12px; color: var(--ink-3); margin-bottom: 20px; }
+h3 { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 12px; letter-spacing: -.1px; }
+h4 { font-size: 11.5px; font-weight: 600; color: var(--ink-2); margin-bottom: 8px; text-transform: uppercase; letter-spacing: .4px; }
+
+/* ── CARDS ───────────────────────────────────────────────────────── */
+.card { background: var(--white); border: 1px solid var(--rule); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; box-shadow: var(--shadow); }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+@media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+/* ── FORMS ───────────────────────────────────────────────────────── */
+label { display: block; font-size: 11.5px; font-weight: 600; color: var(--ink-2); margin-bottom: 3px; }
+select, input[type="text"], input[type="date"], input[type="number"], textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  font-size: 12.5px;
+  color: var(--ink);
+  background: var(--white);
+  margin-bottom: 10px;
+  transition: border-color .15s;
+}
+select:focus, input:focus, textarea:focus {
+  outline: none;
+  border-color: var(--ink);
+}
+textarea { resize: vertical; min-height: 80px; font-family: inherit; }
+
+/* ── BUTTONS ─────────────────────────────────────────────────────── */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border: 1px solid transparent; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; transition: opacity .15s; }
+.btn:hover { opacity: .8; }
+.btn-primary { background: var(--ink); color: var(--white); }
+.btn-outline { background: var(--white); color: var(--ink); border-color: var(--rule); }
+.btn-ok { background: var(--ok); color: var(--white); }
+.btn-sm { padding: 5px 10px; font-size: 11px; }
+
+/* ── ALERTS ──────────────────────────────────────────────────────── */
+.alert { border-radius: 4px; padding: 10px 14px; font-size: 12px; margin-bottom: 12px; border-left: 3px solid; }
+.alert strong { display: block; margin-bottom: 2px; }
+.alert-danger { background: #fff5f5; border-color: var(--danger); color: #6a1010; }
+.alert-warn   { background: #fffbf0; border-color: var(--warn);   color: #5a3800; }
+.alert-info   { background: #f0f6ff; border-color: var(--info);   color: #0f2d5a; }
+.alert-ok     { background: #f0fff6; border-color: var(--ok);     color: #0a3d23; }
+
+/* ── CHECKLIST ───────────────────────────────────────────────────── */
+.check-group { border: 1px solid var(--rule); border-radius: 4px; margin-bottom: 10px; overflow: hidden; }
+.check-group-header { background: var(--bg); padding: 7px 12px; font-size: 11px; font-weight: 700; color: var(--ink-2); text-transform: uppercase; letter-spacing: .4px; border-bottom: 1px solid var(--rule); }
+.check-item { display: flex; align-items: flex-start; gap: 9px; padding: 8px 12px; border-bottom: 1px solid var(--rule); font-size: 12.5px; color: var(--ink); line-height: 1.45; }
+.check-item:last-child { border-bottom: none; }
+.check-item input[type="checkbox"] { width: auto; margin: 2px 0 0 0; flex-shrink: 0; accent-color: var(--ink); }
+.check-item.checked { background: #f9fff9; }
+.link-small { font-size: 11px; color: var(--info); text-decoration: none; display: block; margin-top: 2px; }
+.link-small:hover { text-decoration: underline; }
+
+/* ── PROGRESS ────────────────────────────────────────────────────── */
+.progress-wrap { background: var(--rule); border-radius: 99px; height: 4px; margin: 12px 0 4px; }
+.progress-bar  { background: var(--ink); height: 4px; border-radius: 99px; transition: width .35s; }
+.progress-label { font-size: 11px; color: var(--ink-3); text-align: right; }
+
+/* ── OUTPUT / TEXTAREA ───────────────────────────────────────────── */
+.output-box {
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 16px;
+  font-size: 12.5px;
+  font-family: 'Courier New', monospace;
+  white-space: pre-wrap;
+  line-height: 1.6;
+  min-height: 180px;
+  color: var(--ink);
+  margin-top: 12px;
+}
+.placeholder-text { color: var(--ink-3); font-family: inherit; font-style: italic; }
+
+/* ── QUESTÃO ─────────────────────────────────────────────────────── */
+.questao { background: var(--bg); border: 1px solid var(--rule); border-radius: 4px; padding: 9px 12px; margin-bottom: 6px; font-size: 12.5px; color: var(--ink); line-height: 1.45; }
+.questao::before { content: "›"; margin-right: 6px; font-weight: 700; color: var(--ink-3); }
+
+/* ── GLOSSARIO ───────────────────────────────────────────────────── */
+.gloss-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.gloss-table th { background: var(--bg); padding: 8px 10px; text-align: left; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .3px; color: var(--ink-2); border-bottom: 2px solid var(--rule); }
+.gloss-table td { padding: 8px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+.gloss-table tr:last-child td { border-bottom: none; }
+.gloss-table tr:hover td { background: var(--bg); }
+
+/* ── ORIENTAÇÃO CHIP ─────────────────────────────────────────────── */
+.chip { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 10.5px; font-weight: 600; border: 1px solid; margin-right: 4px; }
+.chip-familia { background: #f0f6ff; border-color: #c0d4f0; color: #1a3a6a; }
+.chip-saude   { background: #f0fff6; border-color: #b0dfc0; color: #1a4a2a; }
+.chip-habitacao { background: #fffbf0; border-color: #e0d0a0; color: #5a3800; }
+.chip-criminal  { background: #fff5f5; border-color: #f0c0c0; color: #6a1010; }
+
+/* ── RELATO / IA ─────────────────────────────────────────────────── */
+.ia-card { border: 1px solid var(--ink); border-radius: var(--radius); overflow: hidden; }
+.ia-card-header { background: var(--ink); color: var(--white); padding: 12px 16px; font-size: 12px; font-weight: 700; letter-spacing: .3px; }
+.ia-card-body { padding: 16px; }
+.ia-result { background: var(--bg); border: 1px solid var(--rule); border-radius: 4px; padding: 14px; font-size: 12.5px; line-height: 1.6; color: var(--ink); margin-top: 12px; }
+.ia-result h4 { color: var(--ink); font-size: 12px; margin-bottom: 6px; border-bottom: 1px solid var(--rule); padding-bottom: 6px; }
+
+/* ── CONTATOS ────────────────────────────────────────────────────── */
+.contato-card { border: 1px solid var(--rule); border-radius: 4px; padding: 12px; margin-bottom: 10px; }
+.contato-card .c-title { font-weight: 700; font-size: 12.5px; color: var(--ink); margin-bottom: 4px; }
+.contato-card .c-detail { font-size: 11.5px; color: var(--ink-2); line-height: 1.6; }
+.contato-card .c-tag { font-size: 10.5px; font-weight: 600; color: var(--info); text-transform: uppercase; letter-spacing: .3px; margin-bottom: 4px; }
+
+/* ── TABS internas ───────────────────────────────────────────────── */
+.inner-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--rule); margin-bottom: 16px; }
+.inner-tab { padding: 8px 16px; font-size: 12px; font-weight: 600; color: var(--ink-3); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; background: none; border-top: none; border-left: none; border-right: none; transition: color .15s, border-color .15s; }
+.inner-tab.active { color: var(--ink); border-bottom-color: var(--ink); }
+.inner-panel { display: none; }
+.inner-panel.active { display: block; }
+
+/* ── BADGE ───────────────────────────────────────────────────────── */
+.badge { background: var(--danger); color: var(--white); border-radius: 99px; font-size: 9px; padding: 1px 5px; font-weight: 700; margin-left: 4px; }
+
+/* ── DIVIDER ─────────────────────────────────────────────────────── */
+hr.divider { border: none; border-top: 1px solid var(--rule); margin: 16px 0; }
+/* ════════════════════════════════════════════════════
+   RESPONSIVO — CELULAR (max-width: 768px)
+   Não altera nenhum conteúdo, só reorganiza o layout
+   ════════════════════════════════════════════════════ */
+
+/* Hambúrguer — escondido no desktop */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+.hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--ink);
+  border-radius: 2px;
+  transition: all .25s;
+}
+
+/* Overlay escuro atrás da sidebar quando aberta */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  z-index: 9;
+}
+.sidebar-overlay.open { display: block; }
+
+/* ── CELULAR ── */
+@media (max-width: 768px) {
+
+  /* Corpo vira coluna em vez de linha */
+  body {
+    flex-direction: column;
+    overflow: auto;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  /* Sidebar some da tela e fica pronta para deslizar */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    height: 100vh;
+    width: 80%;
+    max-width: 280px;
+    z-index: 10;
+    transition: left .3s ease;
+    box-shadow: 4px 0 20px rgba(0,0,0,.15);
+  }
+
+  /* Quando tiver a classe .open, aparece */
+  .sidebar.open {
+    left: 0;
+  }
+
+  /* Main ocupa tudo */
+  .main {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  /* Conteúdo rola normalmente */
+  .content {
+    overflow-y: visible;
+    padding: 16px;
+  }
+
+  /* Topbar mostra o hambúrguer */
+  .hamburger { display: flex; }
+
+  /* Grids viram 1 coluna */
+  .grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Tabelas internas rolam horizontalmente */
+  .gloss-table,
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Botões de abas internas empilham */
+  .inner-tabs {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .inner-tab {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  /* Inputs e selects maiores para toque */
+  select,
+  input[type="text"],
+  input[type="date"],
+  input[type="number"],
+  input[type="password"],
+  textarea {
+    font-size: 16px; /* evita zoom automático no iPhone */
+    padding: 10px 12px;
+  }
+
+  /* Alertas com padding menor */
+  .alert { padding: 10px 12px; }
+
+  /* Topbar compacta */
+  .topbar {
+    padding: 0 14px;
+    gap: 8px;
+  }
+  .topbar-title { font-size: 12px; }
+  .topbar-status span { display: none; } /* esconde texto "Base 2026", mantém bolinha */
+
+  /* Page title menor */
+  .page-title { font-size: 15px; }
+
+  /* Output box menor */
+  .output-box { font-size: 11.5px; padding: 12px; }
+
+  /* Cards com padding menor */
+  .card { padding: 14px; }
+
+  /* Botões maiores para toque */
+  .btn { padding: 10px 16px; font-size: 12px; }
+  .btn-sm { padding: 8px 12px; }
+
+  /* Topnav (se existir) vira scroll horizontal */
+  .topnav-links {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+  }
+}
+
+/* ── TABLET (769px a 1024px) ── */
+@media (min-width: 769px) and (max-width: 1024px) {
+
+  /* Sidebar um pouco mais estreita */
+  :root { --sidebar-w: 180px; }
+
+  .tab-btn { font-size: 11.5px; padding: 8px 12px; }
+
+  /* Grids de 3 viram 2 */
+  .grid-3 { grid-template-columns: 1fr 1fr; }
+
+  .content { padding: 18px; }
+}

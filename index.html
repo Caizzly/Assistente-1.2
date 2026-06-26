@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS — Assistente Jurídico · DPE-SP Jundiaí</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════ SIDEBAR -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="fecharSidebar()"></div>
+<nav class="sidebar" id="sidebar">  <div class="sidebar-logo">
+    <div class="logo-title">⚖ JARVIS v8</div>
+    <div class="logo-sub">DPE-SP · Regional Jundiaí</div>
+  </div>
+
+  <div class="nav-section">Atendimento</div>
+  <button class="tab-btn active" onclick="sw('triagem')"><span class="ico">⬡</span>Triagem & Orientação</button>
+  <button class="tab-btn" onclick="sw('orientacao-oficial')"><span class="ico">📌</span>Pauta do Oficial</button>
+
+  <div class="nav-section">Áreas</div>
+  <button class="tab-btn" onclick="sw('familia')"><span class="ico">◈</span>Família / Divórcio</button>
+  <button class="tab-btn" onclick="sw('interdicao')"><span class="ico">◈</span>Interdição / Curatela</button>
+  <button class="tab-btn" onclick="sw('saude')"><span class="ico">◈</span>Saúde / Cirurgia</button>
+  <button class="tab-btn" onclick="sw('habitacao')"><span class="ico">◈</span>Habitação (CDHU/FUMAS)</button>
+  <button class="tab-btn" onclick="sw('educacao')"><span class="ico">◈</span>Educação / Creche</button>
+  <button class="tab-btn" onclick="sw('detran')"><span class="ico">◈</span>DETRAN / Veículos</button>
+  <button class="tab-btn" onclick="sw('previdencia')"><span class="ico">◈</span>Previdência / BPC</button>
+  <button class="tab-btn" onclick="sw('consumidor')"><span class="ico">◈</span>Consumidor / Bancário</button>
+
+  <div class="nav-section">Expedição</div>
+  <button class="tab-btn" onclick="sw('oficios')"><span class="ico">✉</span>Ofícios</button>
+  <button class="tab-btn" onclick="sw('declaracoes')"><span class="ico">□</span>Declarações</button>
+  <button class="tab-btn" onclick="sw('pecas')"><span class="ico">≡</span>Peças Iniciais</button>
+
+  <div class="nav-section">Ferramentas</div>
+  <button class="tab-btn" onclick="sw('calculadora')"><span class="ico">∑</span>Calculadoras</button>
+  <button class="tab-btn" onclick="sw('glossario')"><span class="ico">Α</span>Glossário Jurídico</button>
+  <button class="tab-btn" onclick="sw('contatos')"><span class="ico">◎</span>Contatos e Varas</button>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════ MAIN -->
+<div class="main">
+<header class="topbar">
+  <button class="hamburger" onclick="toggleSidebar()" id="hamburger-btn" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>    <span class="topbar-title" id="page-title">Triagem & Orientação</span>
+    <div class="topbar-status"><div class="status-dot"></div>Base 2026 ativa</div>
+  </header>
+
+  <div class="content">
+
+<!-- ════════════════════════════════ TRIAGEM -->
+<div id="tab-triagem" class="tab-panel active">
+  <div class="page-title">Triagem & Checklists</div>
+  <div class="page-sub">Selecione a demanda para ver as perguntas de triagem, documentos e alertas.</div>
+
+  <div class="alert alert-warn">
+    <strong>Regra Geral — Balcão Jundiaí</strong>
+    Renda familiar até 3 salários mínimos (R$ 4.863,00/mês). Trazer comprovante de renda de <strong>todos os moradores acima de 16 anos</strong>. Empregado: CTPS + 3 holerites · Autônomo/desempregado: CTPS + 3 extratos · Aposentado: extrato INSS. Imóvel alugado: contrato ou declaração com firma reconhecida.
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>Demanda</h3>
+      <label>Selecione a ação pretendida</label>
+      <select id="atend-demanda" onchange="atualizarTriagem(this.value)">
+        <option value="">— selecione —</option>
+        <optgroup label="Família">
+          <option value="alimentos">Ação de Alimentos (filhos)</option>
+          <option value="revisional_alimentante">Revisional (pelo alimentante)</option>
+          <option value="execucao_alimentos">Execução de Alimentos (pensão atrasada)</option>
+          <option value="divorcio">Divórcio + Guarda + Alimentos</option>
+          <option value="divorcio_conversao">Conversão de Separação em Divórcio</option>
+          <option value="uniao_estavel">União Estável + Dissolução</option>
+          <option value="uniao_falecido">União Estável — Companheiro Falecido</option>
+          <option value="interdicao">Interdição / Curatela</option>
+          <option value="internacao">Internação Compulsória / Involuntária</option>
+        </optgroup>
+        <optgroup label="Saúde">
+          <option value="saude_alta_complexidade">Saúde: Cirurgia / Consulta / Medicamento</option>
+        </optgroup>
+        <optgroup label="Educação">
+          <option value="vaga_creche">Vaga em Creche / Período Integral</option>
+          <option value="professor_auxiliar">Professor Auxiliar / Cuidador Escolar</option>
+          <option value="transferencia_escola">Transferência de Escola</option>
+        </optgroup>
+        <optgroup label="Habitação">
+          <option value="cdhu_info">CDHU — Informações / Contrato</option>
+          <option value="despejo_desocupacao">Despejo / Desocupação (defesa)</option>
+          <option value="religamento_energia">Religamento de Energia Elétrica</option>
+          <option value="historico_debitos_agua">Débitos de Água (DAE/SAAE)</option>
+        </optgroup>
+        <optgroup label="Patrimônio">
+          <option value="alvara_pequena_monta">Alvará — Levantamento (Pequena Monta)</option>
+          <option value="heranca_renuncia">Renúncia Hereditária</option>
+          <option value="cumprimento_sentenca">Cumprimento de Sentença</option>
+        </optgroup>
+      </select>
+      <div id="alertas-container"></div>
+      <div id="questoes-container"></div>
+    </div>
+
+    <div class="card">
+      <h3>Documentos Obrigatórios</h3>
+      <p style="font-size:11.5px;color:var(--danger);margin-bottom:12px;">⚠ A Defensoria somente atua após a entrega da totalidade dos documentos.</p>
+      <div id="checklist-container"><p class="placeholder-text">Selecione uma demanda ao lado.</p></div>
+      <div id="progress-wrap" style="display:none">
+        <div class="progress-wrap"><div class="progress-bar" id="prog-bar" style="width:0"></div></div>
+        <div class="progress-label" id="prog-label">0 / 0 marcados</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ PAUTA DO OFICIAL -->
+<div id="tab-orientacao-oficial" class="tab-panel">
+  <div class="page-title">Pauta do Oficial</div>
+  <div class="page-sub">Cole ou digite a pauta de atendimento do dia. O sistema identifica cada caso e sugere ações.</div>
+
+  <div class="ia-card" style="margin-bottom:16px;">
+    <div class="ia-card-header">✦ Analisador de Pauta</div>
+    <div class="ia-card-body">
+      <label>Cole a orientação ou relato do oficial</label>
+      <textarea id="pauta-input" rows="7" placeholder="Ex:&#10;08:00 - 30538227842 - *GIO - Rosa Mônica Da Silva - Divórcio, alimentos, guarda e convivência. Atenção à certidão atualizada de casamento...&#10;&#10;Ou apenas: &quot;a assistida relata que quer receber pagamento do pai da criança&quot;"></textarea>
+      <button class="btn btn-primary" onclick="analisarPauta()">Analisar Pauta</button>
+    </div>
+  </div>
+
+  <div id="pauta-resultado"></div>
+
+  <div class="card">
+    <h3>Como funciona</h3>
+    <div class="alert alert-info" style="margin-bottom:8px;">
+      <strong>Formato estruturado (pauta do oficial)</strong>
+      O sistema extrai: horário, CPF, estagiário, nome da assistida, demanda e orientações — e sugere os próximos passos para cada caso.
+    </div>
+    <div class="alert alert-info">
+      <strong>Relato livre</strong>
+      Se você descrever a situação em linguagem natural ("assistida relata que quer receber pensão do filho"), o sistema identifica a demanda, sugere documentos e perguntas de triagem.
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ FAMÍLIA -->
+<div id="tab-familia" class="tab-panel">
+  <div class="page-title">Família / Divórcio</div>
+  <div class="page-sub">Checklists, alertas e formulários para demandas de família.</div>
+
+  <div class="inner-tabs">
+    <button class="inner-tab active" onclick="switchInner('familia','divorcio-panel')">Divórcio Litigioso</button>
+    <button class="inner-tab" onclick="switchInner('familia','conversao-panel')">Conversão Separação → Divórcio</button>
+    <button class="inner-tab" onclick="switchInner('familia','uniao-panel')">União Estável</button>
+    <button class="inner-tab" onclick="switchInner('familia','sobrepartilha-panel')">Sobrepartilha / Inventário</button>
+  </div>
+
+  <div id="familia-divorcio-panel" class="inner-panel active">
+    <div class="alert alert-danger"><strong>⚠ Atenção</strong> Trazer ORIGINAIS e UMA CÓPIA de cada documento. A Defensoria somente atua com a totalidade dos documentos.</div>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Checklist — Divórcio + Guarda + Alimentos</h3>
+        <div class="check-group">
+          <div class="check-group-header">Parte Autora (Requerente)</div>
+          <div class="check-item"><input type="checkbox" onchange="calcProg('familia')"><span>RG e CPF da parte autora</span></div>
+          <div class="check-item"><input type="checkbox" onchange="calcProg('familia')"><span>Comprovante de endereço atualizado (água, luz ou gás)</span></div>
+          <div class="check-item"><input type="checkbox" onchange="calcProg('familia')"><span>Conta bancária para depósito da pensão (banco / agência / cc)</span></div>
+        </div>
+        <div class="check-group">
+          <div class="check-group-header">Réu (Requerido)</div>
+          <div class="check-item"><input type="checkbox" onchange="calcProg('familia')"><span>RG e CPF do réu (se disponível)</span></div>
+          <div class="check-item"><input type="checkbox" onchange="calcProg('familia')"><span>Endereço residencial e/ou comercial do réu</span></div>
+          <div class="check-item"><input type="checkbox" onchange="calcProg('familia')"><span>Local de trabalho do réu (para desconto em folha)</span></div>
+        </div>
+        <div class="check-group">
+          <div class="check-group-header">Casamento e Filhos</div>
+          <div class="check-item"><input type="checkbox" onchange="calcProg('familia')"><span>Certidão de casamento <strong>atualizada</strong> (emitida nos últimos 90 dias)</span></div>
+          <div class="check-item"><input type="checkbox" onchange="calcProg('familia')"><span>Certidão(ões) de nascimento dos filhos menores</span></div>
+          <div class="check-item"><input type="checkbox" onchange="calcProg('familia')"><span>Comprovante de matrícula escolar dos filhos</span></div>
+          <div class="check-item"><input type="checkbox" onchange="calcProg('familia')"><span>Cartão de vacinação dos filhos menores</span></div>
+          <div class="check-item"><input type="checkbox" onchange="calcProg('familia')"><span>Atestado médico com CID (se filho possui doença que gera gastos extras)</span></div>
+        </div>
+        <div class="check-group">
+          <div class="check-group-header">Suporte ao Pedido</div>
+          <div class="check-item"><input type="checkbox" onchange="calcProg('familia')"><span>Boletim de Ocorrência (se houver violência doméstica ou ameaça)</span></div>
+          <div class="check-item"><input type="checkbox" onchange="calcProg('familia')"><span>Rol de 2 testemunhas não parentes, maiores de 18 anos (nome, RG, CPF, endereço)</span></div>
+          <div class="check-item"><input type="checkbox" onchange="calcProg('familia')"><span>Documentos de bens do casal (somente se houver bens a partilhar)</span></div>
+        </div>
+        <div class="check-group" style="border-color:var(--ok)">
+          <div class="check-group-header" style="background:#f0fff6;color:var(--ok)">Renda — Todos os moradores</div>
+          <div class="check-item"><input type="checkbox" onchange="calcProg('familia')"><span>CTPS de todos os membros (foto + último registro)</span></div>
+          <div class="check-item"><input type="checkbox" onchange="calcProg('familia')"><span>Empregado: 3 últimos contracheques</span></div>
+          <div class="check-item"><input type="checkbox" onchange="calcProg('familia')"><span>Autônomo/Desempregado: extratos bancários dos últimos 3 meses (todas as contas)</span></div>
+          <div class="check-item"><input type="checkbox" onchange="calcProg('familia')"><span>Aposentado/LOAS: extrato do benefício INSS</span></div>
+        </div>
+        <div class="progress-wrap"><div class="progress-bar" id="prog-familia" style="width:0"></div></div>
+        <div class="progress-label" id="cnt-familia">0 / 17 marcados</div>
+      </div>
+      <div class="card">
+        <h3>Triagem — Perguntas Essenciais</h3>
+        <div class="questao">O divórcio é consensual ou litigioso? Há acordo sobre guarda e alimentos?</div>
+        <div class="questao">Há filhos menores? Quantos? Idades?</div>
+        <div class="questao">Qual a renda atual do réu? Tem vínculo empregatício formal?</div>
+        <div class="questao">Há bens a partilhar (imóvel, veículo, conta bancária)?</div>
+        <div class="questao">Há histórico de violência doméstica ou medida protetiva vigente?</div>
+        <div class="questao">Já existe ação de alimentos ou guarda anterior? (nº, vara)</div>
+        <hr class="divider">
+        <h3>Alertas Críticos</h3>
+        <div class="alert alert-danger"><strong>Certidão de casamento</strong> Deve ser atualizada (emitida nos últimos 90 dias). Cartório pode exigir mais recente.</div>
+        <div class="alert alert-warn"><strong>Pesquisa Fonética</strong> Válida por apenas 15 dias. Verificar antes de protocolar.</div>
+        <div class="alert alert-info"><strong>Tutela de Evidência — Divórcio Liminar</strong> Art. 311, II e IV, CPC + EC 66/2010. Não precisa demonstrar periculum in mora. Enunciado 18 IBDFAM.</div>
+        <div class="alert alert-info"><strong>Valor da Causa</strong> Referência DPSP Jundiaí: R$ 19.452,00 (≈ 12× SM 2026). Com bens: 50% do valor dos bens.</div>
+        <div class="alert alert-warn"><strong>Violência Doméstica</strong> Se há BO: guarda unilateral + convivência supervisionada. Verificar medidas protetivas vigentes.</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="familia-conversao-panel" class="inner-panel">
+    <div class="card">
+      <h3>Checklist — Conversão de Separação em Divórcio</h3>
+      <div class="check-group">
+        <div class="check-group-header">Documentos Específicos</div>
+        <div class="check-item"><input type="checkbox"><span>RG e CPF do(a) interessado(a) e do(a) cônjuge</span></div>
+        <div class="check-item"><input type="checkbox"><span>Comprovante de endereço atualizado</span></div>
+        <div class="check-item"><input type="checkbox"><span>Certidão de casamento atualizada</span></div>
+        <div class="check-item"><input type="checkbox"><span>Cópia da sentença de separação com trânsito em julgado</span></div>
+        <div class="check-item"><input type="checkbox"><span>Cópia da petição inicial da separação consensual (se julgada fora de Jundiaí)</span></div>
+        <div class="check-item"><input type="checkbox"><span>Pesquisa fonética — fornecida pelo distribuidor do fórum (validade máx. 15 dias)</span></div>
+        <div class="check-item"><input type="checkbox"><span>Pacto antenupcial — se houver</span></div>
+        <div class="check-item"><input type="checkbox"><span>Certidão(ões) de nascimento e/ou RG dos filhos</span></div>
+        <div class="check-item"><input type="checkbox"><span>Endereço residencial E comercial do(a) cônjuge</span></div>
+        <div class="check-item"><input type="checkbox"><span>Informar se pretende voltar ao nome de solteiro(a)</span></div>
+        <div class="check-item"><input type="checkbox"><span>Bens não partilhados: escritura/matrícula, CRLV, contratos CDHU/MCMV</span></div>
+        <div class="check-item"><input type="checkbox"><span>Comprovante de depósito da pensão (se houver)</span></div>
+        <div class="check-item"><input type="checkbox"><span>2 testemunhas não parentes (nome, endereço, RG)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="familia-uniao-panel" class="inner-panel">
+    <div class="card">
+      <h3>Checklist — Reconhecimento de União Estável c/c Dissolução</h3>
+      <div class="alert alert-danger"><strong>Comprovação da União — ao menos 1 documento obrigatório</strong> Fotografias, cartas, contrato de locação conjunto, extrato bancário conjunto, apólice de seguro de vida, IRPF, certidão de dependência INSS.</div>
+      <div class="check-group">
+        <div class="check-group-header">Documentos</div>
+        <div class="check-item"><input type="checkbox"><span>RG e CPF de ambos os companheiros</span></div>
+        <div class="check-item"><input type="checkbox"><span>Comprovante de endereço atualizado</span></div>
+        <div class="check-item"><input type="checkbox"><span>Certidão de nascimento dos filhos</span></div>
+        <div class="check-item"><input type="checkbox"><span>Endereço residencial E comercial do(a) companheiro(a)</span></div>
+        <div class="check-item"><input type="checkbox"><span>Ao menos 1 documento que comprove a união (fotografias, cartas, contrato, extrato, IRPF...)</span></div>
+        <div class="check-item"><input type="checkbox"><span>Documentos de situação financeira do(a) companheiro(a): CTPS + holerites</span></div>
+        <div class="check-item"><input type="checkbox"><span>Relação completa de bens em comum (imóveis, veículos, bens móveis com notas fiscais)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="familia-sobrepartilha-panel" class="inner-panel">
+    <div class="card">
+      <h3>Sobrepartilha / Inventário</h3>
+      <div class="alert alert-info"><strong>Competência</strong> Inventários e sobrepartilhas: vara de família (se consensual com filhos menores) ou vara cível (demais casos).</div>
+      <div class="questao">Há testamento? Foi aberto em cartório?</div>
+      <div class="questao">Quais são os bens a partilhar? Há ITCMD a recolher?</div>
+      <div class="questao">Todos os herdeiros concordam com a partilha?</div>
+      <div class="questao">Há herdeiros incapazes (menores, interditados)?</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ INTERDIÇÃO -->
+<div id="tab-interdicao" class="tab-panel">
+  <div class="page-title">Interdição / Curatela</div>
+  <div class="page-sub">Checklist completo e triagem para ações de interdição e levantamento de curatela.</div>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Checklist — Ação de Interdição</h3>
+      <div class="check-group">
+        <div class="check-group-header">Do Interessado (Autor / Proponente)</div>
+        <div class="check-item"><input type="checkbox" onchange="calcProg('interdicao')"><span>RG e CPF do(a) interessado(a)</span></div>
+        <div class="check-item"><input type="checkbox" onchange="calcProg('interdicao')"><span>Comprovante de endereço atualizado</span></div>
+        <div class="check-item"><input type="checkbox" onchange="calcProg('interdicao')"><span>Documento que comprove parentesco com o interditando</span></div>
+        <div class="check-item"><input type="checkbox" onchange="calcProg('interdicao')"><span>Certidão de antecedentes criminais (SSP/SP)<a class="link-small" href="https://www2.ssp.sp.gov.br/aacweb/carrega-formulario" target="_blank">↗ ssp.sp.gov.br</a></span></div>
+        <div class="check-item"><input type="checkbox" onchange="calcProg('interdicao')"><span>Certidão criminal TJSP<a class="link-small" href="https://esaj.tjsp.jus.br/sco/abrirCadastro.do" target="_blank">↗ esaj.tjsp.jus.br</a></span></div>
+        <div class="check-item"><input type="checkbox" onchange="calcProg('interdicao')"><span>Certidão cível TJSP<a class="link-small" href="https://esaj.tjsp.jus.br/sco/abrirCadastro.do" target="_blank">↗ esaj.tjsp.jus.br</a></span></div>
+        <div class="check-item"><input type="checkbox" onchange="calcProg('interdicao')"><span>Certidão criminal TRF3<a class="link-small" href="https://web.trf3.jus.br/certidao-regional/CertidaoCivelEleitoralCriminal/SolicitarDadosCertidao" target="_blank">↗ trf3.jus.br</a></span></div>
+        <div class="check-item"><input type="checkbox" onchange="calcProg('interdicao')"><span>Certidão antecedentes PF<a class="link-small" href="https://servicos.pf.gov.br/epol-sinic-publico/" target="_blank">↗ pf.gov.br</a></span></div>
+        <div class="check-item"><input type="checkbox" onchange="calcProg('interdicao')"><span>Atestado de saúde do proponente</span></div>
+        <div class="check-item"><input type="checkbox" onchange="calcProg('interdicao')"><span>Declaração de Responsabilidade do(a) Curador(a) (formulário DPSP)</span></div>
+        <div class="check-item"><input type="checkbox" onchange="calcProg('interdicao')"><span>Declaração de concordância do cônjuge/companheiro (c/ firma reconhecida)</span></div>
+      </div>
+      <div class="check-group">
+        <div class="check-group-header">Da Pessoa a ser Interditada</div>
+        <div class="check-item"><input type="checkbox" onchange="calcProg('interdicao')"><span>RG e CPF do interditando</span></div>
+        <div class="check-item"><input type="checkbox" onchange="calcProg('interdicao')"><span>Comprovante de endereço</span></div>
+        <div class="check-item"><input type="checkbox" onchange="calcProg('interdicao')"><span><strong>Laudo médico de hospital PÚBLICO (máx. 6 meses)</strong> — com CID e incapacidade para atos da vida civil</span></div>
+        <div class="check-item"><input type="checkbox" onchange="calcProg('interdicao')"><span>Notas fiscais e receituários dos medicamentos em uso</span></div>
+        <div class="check-item"><input type="checkbox" onchange="calcProg('interdicao')"><span>Comprovantes de eventual internação</span></div>
+        <div class="check-item"><input type="checkbox" onchange="calcProg('interdicao')"><span>Extrato do benefício INSS (se houver)<a class="link-small" href="https://www.inss.gov.br/servicos-do-inss/extrato-de-pagamento-de-beneficio" target="_blank">↗ inss.gov.br</a></span></div>
+        <div class="check-item"><input type="checkbox" onchange="calcProg('interdicao')"><span>Documentos de bens (imóvel, veículo, conta) — se houver</span></div>
+      </div>
+      <div class="check-group">
+        <div class="check-group-header">Concordância dos Parentes</div>
+        <div class="check-item"><input type="checkbox" onchange="calcProg('interdicao')"><span>Carta dos demais parentes <strong>com firma reconhecida</strong> concordando com a interdição</span></div>
+        <div class="check-item"><input type="checkbox" onchange="calcProg('interdicao')"><span>Documento que comprove o parentesco de cada declarante</span></div>
+      </div>
+      <div class="check-group" style="border-color:var(--ok)">
+        <div class="check-group-header" style="background:#f0fff6;color:var(--ok)">Renda — Todos os moradores</div>
+        <div class="check-item"><input type="checkbox" onchange="calcProg('interdicao')"><span>CTPS de todos os membros (foto + último registro)</span></div>
+        <div class="check-item"><input type="checkbox" onchange="calcProg('interdicao')"><span>Empregado: 3 últimos contracheques</span></div>
+        <div class="check-item"><input type="checkbox" onchange="calcProg('interdicao')"><span>Autônomo/Desempregado: extratos bancários dos últimos 3 meses</span></div>
+      </div>
+      <div class="progress-wrap"><div class="progress-bar" id="prog-interdicao" style="width:0"></div></div>
+      <div class="progress-label" id="cnt-interdicao">0 / 24 marcados</div>
+    </div>
+    <div class="card">
+      <h3>Triagem — Perguntas Essenciais</h3>
+      <div class="questao">Qual a relação de parentesco entre o autor e o interditando?</div>
+      <div class="questao">Já existe ação de interdição em andamento ou finalizada? (nº, Vara, Foro)</div>
+      <div class="questao">Quais são os motivos / diagnósticos que justificam a interdição?</div>
+      <div class="questao">Há laudo médico público recente (até 6 meses) com CID e atestando incapacidade?</div>
+      <div class="questao">O interditando possui bens (imóvel, veículo, conta, benefício INSS)?</div>
+      <div class="questao">Há outros parentes (irmãos, pais)? Todos concordam com a interdição?</div>
+      <div class="questao">A pessoa oferece risco a si ou a terceiros? Há BO?</div>
+      <div class="questao">Já foi atendida na rede pública (CAPS, CAPS-AD)?</div>
+      <hr class="divider">
+      <h3>Alertas Críticos</h3>
+      <div class="alert alert-danger"><strong>Laudo — prazo máximo 6 meses</strong> Deve ser de hospital PÚBLICO, com CID e atestar incapacidade para atos da vida civil.</div>
+      <div class="alert alert-danger"><strong>Certidões obrigatórias</strong> SSP/SP + TJSP criminal + TJSP cível + TRF3 + PF. Sem todas, a Defensoria não atua.</div>
+      <div class="alert alert-warn"><strong>Firma reconhecida</strong> Carta dos demais parentes e declaração de não oposição devem ter firma reconhecida em cartório.</div>
+      <div class="alert alert-info"><strong>Dois formulários DPSP</strong> (1) Declaração de Responsabilidade do Curador + (2) Declaração de Não Oposição. Ambos obrigatórios.</div>
+      <div class="alert alert-info"><strong>Ofício Médico</strong> Se o laudo disponível for insuficiente, expedir ofício médico solicitando declaração com CID e capacidade para atos da vida civil.</div>
+      <hr class="divider">
+      <h3>Levantamento de Curatela</h3>
+      <div class="alert alert-info"><strong>Documentos adicionais</strong> Laudo médico atualizado (máx. 6 meses) do IMESC ou hospital público atestando recuperação da capacidade. Concordância do curador atual.</div>
+      <div class="questao">O assistido foi avaliado recentemente por psiquiatra?</div>
+      <div class="questao">Há laudo do IMESC ou perito público disponível?</div>
+      <div class="questao">O curador atual concorda com o levantamento?</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ SAÚDE -->
+<div id="tab-saude" class="tab-panel">
+  <div class="page-title">Saúde / Cirurgia</div>
+  <div class="page-sub">Alta complexidade, cirurgias, medicamentos, NATIJUS, negativas de plano de saúde.</div>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Checklist — Saúde (Geral)</h3>
+      <div class="check-group">
+        <div class="check-group-header">Documentos</div>
+        <div class="check-item"><input type="checkbox"><span>RG e CPF do(a) paciente</span></div>
+        <div class="check-item"><input type="checkbox"><span>Comprovante de endereço atualizado</span></div>
+        <div class="check-item"><input type="checkbox"><span>Laudo médico detalhado com CID e indicação do procedimento/medicamento</span></div>
+        <div class="check-item"><input type="checkbox"><span>Prescrição médica atualizada (para medicamentos)</span></div>
+        <div class="check-item"><input type="checkbox"><span>Negativa administrativa do SUS / Secretaria de Saúde (se houver)</span></div>
+        <div class="check-item"><input type="checkbox"><span>Negativa do plano de saúde (se for demanda contra plano)</span></div>
+        <div class="check-item"><input type="checkbox"><span>Prontuário médico (se disponível)</span></div>
+        <div class="check-item"><input type="checkbox"><span>Resultado de exames que comprovem a necessidade</span></div>
+      </div>
+      <div class="check-group" style="border-color:var(--ok)">
+        <div class="check-group-header" style="background:#f0fff6;color:var(--ok)">Renda — Todos os moradores</div>
+        <div class="check-item"><input type="checkbox"><span>CTPS de todos os membros + 3 últimos holerites ou 3 extratos bancários</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Triagem e Alertas</h3>
+      <div class="questao">Qual o procedimento / medicamento solicitado?</div>
+      <div class="questao">Já houve pedido na rede pública? Foi negado formalmente?</div>
+      <div class="questao">Há urgência ou emergência médica (risco de vida)?</div>
+      <div class="questao">O paciente é usuário do SUS ou tem plano de saúde?</div>
+      <div class="questao">Há fila de espera? Qual a posição e prazo estimado?</div>
+      <hr class="divider">
+      <div class="alert alert-info"><strong>Tutela de Urgência — Requisitos (art. 300 CPC)</strong> Fumus boni iuris: laudo médico + indicação cirúrgica + omissão do Poder Público. Periculum in mora: risco de agravamento do quadro clínico.</div>
+      <div class="alert alert-info"><strong>NATIJUS</strong> Para cirurgias de alta complexidade: expedir ofício ao NATIJUS solicitando nota técnica. Inclui formulário específico + laudo médico.</div>
+      <div class="alert alert-warn"><strong>Plano de saúde — Rol ANS</strong> STJ: cobertura obrigatória de tratamentos incorporados ao rol oficial da ANS. A recusa enseja liminar de urgência. (AgInt no AREsp 2.757.775)</div>
+      <div class="alert alert-info"><strong>Município + Estado réus</strong> Solidariedade entre entes federados em demandas de saúde. Citar Município de Jundiaí E Fazenda Pública do Estado de SP quando necessário.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ HABITAÇÃO -->
+<div id="tab-habitacao" class="tab-panel">
+  <div class="page-title">Habitação — CDHU / FUMAS / Despejo</div>
+  <div class="page-sub">Contratos de habitação, moradia social e defesa em ações de despejo.</div>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Checklist — CDHU / FUMAS</h3>
+      <div class="check-group">
+        <div class="check-group-header">Documentos</div>
+        <div class="check-item"><input type="checkbox"><span>RG e CPF do(a) titular e cônjuge/companheiro(a)</span></div>
+        <div class="check-item"><input type="checkbox"><span>Certidão de casamento / escritura de união estável (se houver)</span></div>
+        <div class="check-item"><input type="checkbox"><span>Contrato de compra e venda do imóvel (CDHU ou FUMAS)</span></div>
+        <div class="check-item"><input type="checkbox"><span>Matrícula atualizada do imóvel (emitida nos últimos 90 dias)</span></div>
+        <div class="check-item"><input type="checkbox"><span>IPTU atualizado</span></div>
+        <div class="check-item"><input type="checkbox"><span>Comprovante de endereço</span></div>
+        <div class="check-item"><input type="checkbox"><span>Comprovante do início da posse ou pagamento das parcelas</span></div>
+      </div>
+      <div class="alert alert-info" style="margin-top:12px;"><strong>CDHU — Ofício</strong> Solicitar resposta em 10 dias. Enviar para: jundiai.remoto@defensoria.sp.def.br. Incluir nº de matrícula do imóvel.</div>
+      <div class="alert alert-info"><strong>Relatório de Quitação</strong> Quando o financiamento estiver quitado, solicitar especificamente o "relatório de quitação com força de escritura".</div>
+    </div>
+    <div class="card">
+      <h3>Checklist — Despejo / Desocupação (Defesa)</h3>
+      <div class="check-group">
+        <div class="check-group-header">Documentos</div>
+        <div class="check-item"><input type="checkbox"><span>RG e CPF do(a) interessado(a)</span></div>
+        <div class="check-item"><input type="checkbox"><span>Comprovante de endereço atual</span></div>
+        <div class="check-item"><input type="checkbox"><span>Contrato de locação ou declaração de posse</span></div>
+        <div class="check-item"><input type="checkbox"><span>Intimação / mandado de despejo (cópia)</span></div>
+        <div class="check-item"><input type="checkbox"><span>Documentos das crianças em idade escolar (RG, matrícula escolar)</span></div>
+        <div class="check-item"><input type="checkbox"><span>CTPS + extratos bancários dos últimos 3 meses</span></div>
+      </div>
+      <hr class="divider">
+      <h3>CUEM — Concessão de Uso Especial para Moradia</h3>
+      <div class="questao">O assistido ocupa imóvel público há mais de 5 anos de forma ininterrupta e mansa?</div>
+      <div class="questao">A área é de até 250m² e serve exclusivamente de moradia?</div>
+      <div class="questao">O assistido não é proprietário de outro imóvel?</div>
+      <div class="alert alert-info" style="margin-top:10px;"><strong>Fundamento: art. 183 CF + MP 2.220/2001</strong> Concessão de uso especial é direito subjetivo de quem preenche os requisitos, não podendo ser negada pela Administração.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ EDUCAÇÃO -->
+<div id="tab-educacao" class="tab-panel">
+  <div class="page-title">Educação / Creche</div>
+  <div class="page-sub">Vaga em creche, professor auxiliar, transferência de escola.</div>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Checklist — Vaga em Creche / Período Integral</h3>
+      <div class="check-group">
+        <div class="check-group-header">Documentos</div>
+        <div class="check-item"><input type="checkbox"><span>RG e CPF do(a) responsável</span></div>
+        <div class="check-item"><input type="checkbox"><span>RG e certidão de nascimento da criança</span></div>
+        <div class="check-item"><input type="checkbox"><span>Comprovante de endereço <strong>em nome dos pais</strong> (não dos avós)</span></div>
+        <div class="check-item"><input type="checkbox"><span>Cartão de vacinação da criança</span></div>
+        <div class="check-item"><input type="checkbox"><span>Inscrição (ou recusa documentada) na Secretaria Municipal de Educação</span></div>
+        <div class="check-item"><input type="checkbox"><span>3 orçamentos de creches particulares da região (matrícula + mensalidade integral + CNPJ)</span></div>
+        <div class="check-item"><input type="checkbox"><span>Declaração de ausência de auxílio-creche do empregador</span></div>
+        <div class="check-item"><input type="checkbox"><span>Documentos de renda: CTPS + 3 holerites ou 3 extratos de todos os moradores</span></div>
+      </div>
+      <div class="alert alert-danger" style="margin-top:12px;"><strong>3 Orçamentos — Obrigatório</strong> Verificar se a Regional já possui orçamentos das creches da região. Informações necessárias: valor da matrícula, mensalidade (parcial e integral), CNPJ, assinatura e data.</div>
+      <div class="alert alert-warn"><strong>Comprovante de residência</strong> SOMENTE em nome dos pais. Imóvel alugado: conta do locador + contrato. Imóvel cedido: conta de terceiro + declaração da UBS.</div>
+    </div>
+    <div class="card">
+      <h3>Checklist — Professor Auxiliar / Cuidador Escolar</h3>
+      <div class="check-group">
+        <div class="check-group-header">Documentos</div>
+        <div class="check-item"><input type="checkbox"><span>RG e CPF do(a) responsável e da criança</span></div>
+        <div class="check-item"><input type="checkbox"><span>Laudo médico completo (nome da doença, CID, justificativa do cuidador; para TEA: grau Nível 1, 2 ou 3)</span></div>
+        <div class="check-item"><input type="checkbox"><span>Cópia do pedido administrativo negado (Secretaria Municipal ou Diretoria Regional de Ensino)</span></div>
+        <div class="check-item"><input type="checkbox"><span>Formulário DPSP de Análise de Necessidade de Profissional Especializado</span></div>
+        <div class="check-item"><input type="checkbox"><span>Comprovante de matrícula na escola</span></div>
+        <div class="check-item"><input type="checkbox"><span>Documentos de renda de todos os moradores</span></div>
+      </div>
+      <div class="alert alert-danger" style="margin-top:12px;"><strong>Laudo Médico Completo — Obrigatório</strong> Deve conter nome da doença, CID, justificativa da necessidade de cuidador. Se laudo incompleto: expedir ofício médico + guardar cópia.</div>
+      <div class="alert alert-info"><strong>Escola Municipal vs Estadual</strong> Municipal: pedido à Secretaria Municipal de Ensino. Estadual: pedido à Diretoria Regional de Ensino.</div>
+      <hr class="divider">
+      <h3>Transferência de Escola</h3>
+      <div class="questao">Qual o motivo da transferência (mudança de endereço, bullying, saúde)?</div>
+      <div class="questao">A criança já está inscrita na escola de destino?</div>
+      <div class="alert alert-info"><strong>Procedimento</strong> Na maioria dos casos: expedição de ofício solicitando celeridade à SME, com ciência de que é pedido administrativo, sem ajuizamento de ação.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ DETRAN -->
+<div id="tab-detran" class="tab-panel">
+  <div class="page-title">DETRAN / Veículos</div>
+  <div class="page-sub">Bloqueio de veículos, comunicação de venda, débitos e transferências.</div>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Triagem — Perguntas Essenciais</h3>
+      <div class="questao">Qual a situação: venda sem transferência, veículo furtado/roubado, multas indevidas ou bloqueio judicial?</div>
+      <div class="questao">O veículo ainda está no nome do assistido ou foi transferido?</div>
+      <div class="questao">Há Boletim de Ocorrência de furto/roubo?</div>
+      <div class="questao">Há terceiro de boa-fé envolvido na compra do veículo?</div>
+      <div class="questao">Qual o número do RENAVAM e placa do veículo?</div>
+      <hr class="divider">
+      <div class="alert alert-danger"><strong>Terceiro de Boa-Fé</strong> O DETRAN-SP pode recusar o bloqueio quando há indícios de que o veículo foi adquirido por terceiro de boa-fé. Nesse caso, a via judicial (com BO prévio) é a única alternativa.</div>
+      <div class="alert alert-warn"><strong>Comunicação de Venda</strong> Se o vendedor não fez a transferência, orientar a registrar a Comunicação de Venda no portal DETRAN-SP. Isso o desonera de multas futuras.</div>
+    </div>
+    <div class="card">
+      <h3>Links Úteis — DETRAN-SP</h3>
+      <div class="contato-card">
+        <div class="c-tag">Bloqueio de veículo</div>
+        <div class="c-title">Portal DETRAN-SP — Bloqueio</div>
+        <div class="c-detail"><a class="link-small" href="https://servicos.sp.gov.br/fcarta/454C7CF6" target="_blank">↗ servicos.sp.gov.br/fcarta/454C7CF6</a></div>
+      </div>
+      <div class="contato-card">
+        <div class="c-tag">Comunicação de venda</div>
+        <div class="c-title">Portal DETRAN-SP — Comunicação de Venda</div>
+        <div class="c-detail"><a class="link-small" href="https://servicos.sp.gov.br/fcarta/5E008372" target="_blank">↗ servicos.sp.gov.br/fcarta/5E008372</a></div>
+      </div>
+      <div class="contato-card">
+        <div class="c-tag">Portal geral</div>
+        <div class="c-title">DETRAN-SP</div>
+        <div class="c-detail"><a class="link-small" href="https://www.detran.sp.gov.br" target="_blank">↗ detran.sp.gov.br</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ PREVIDÊNCIA / BPC -->
+<div id="tab-previdencia" class="tab-panel">
+  <div class="page-title">Previdência / BPC-LOAS</div>
+  <div class="page-sub">Benefício de Prestação Continuada, critérios 2026, jurisprudência TNU e DPU Campinas.</div>
+
+  <div class="alert alert-warn">
+    <strong>Competência — Justiça Federal</strong> Demandas previdenciárias e assistenciais contra o INSS tramitam na Justiça Federal. A DPE-SP não atua nessas causas. Encaminhar para a <strong>DPU — Unidade Campinas</strong> ou Juizado Especial Federal (JEF) de Jundiaí.
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>BPC-LOAS 2026 — Critérios</h3>
+      <div class="check-group">
+        <div class="check-group-header">Parâmetros Vigentes (Decreto nº 12.797/2025)</div>
+        <div class="check-item"><span><strong>Salário Mínimo:</strong> R$ 1.621,00</span></div>
+        <div class="check-item"><span><strong>Renda per capita máxima:</strong> R$ 405,25 (¼ do SM)</span></div>
+        <div class="check-item"><span><strong>Idoso:</strong> 65 anos ou mais</span></div>
+        <div class="check-item"><span><strong>PcD:</strong> qualquer idade + impedimento de longo prazo (mín. 2 anos)</span></div>
+        <div class="check-item"><span><strong>CadÚnico:</strong> atualizado há no máximo 24 meses</span></div>
+        <div class="check-item"><span><strong>Biometria:</strong> novos requerimentos até 30/04/2026 | beneficiários até 31/12/2026</span></div>
+      </div>
+      <div class="alert alert-info" style="margin-top:12px;"><strong>Rendas excluídas do cálculo</strong> Bolsa Família, bolsas de estágio, contratos de aprendizagem, e aposentadorias de até 1 SM recebidas por idosos ≥ 65 anos ou PcD do mesmo núcleo familiar.</div>
+      <div class="alert alert-warn"><strong>BPC ≠ Previdência</strong> Não gera direito a 13º salário, nem pensão por morte aos dependentes. Beneficiário do BPC que queira cobertura previdenciária deve recolher como facultativo (alíquota 20% ou 11%). Vedada alíquota de 5%.</div>
+    </div>
+    <div class="card">
+      <h3>Jurisprudência TNU — Deduções e Exceções</h3>
+      <div class="questao">Renda per capita supera R$ 405,25? → Verificar despesas dedutíveis (medicamentos, fraldas, transporte para tratamento).</div>
+      <div class="alert alert-info"><strong>Súmula 18 TNU</strong> A extrapolação do limite de renda não impede a concessão do BPC — o juiz pode apurar miserabilidade por perícia ampla.</div>
+      <div class="alert alert-info"><strong>Tema 122 TNU</strong> Presunção de miserabilidade é relativa — pode ser afastada ou concedida por outros meios probatórios.</div>
+      <div class="alert alert-info"><strong>Súmula 78 TNU</strong> HIV assintomático: avaliar condições pessoais, sociais, econômicas e culturais. Estigmatização da doença conta como barreira.</div>
+      <div class="alert alert-info"><strong>Súmula 88 TNU</strong> Limitação funcional leve ainda assim impõe concessão de auxílio-acidente pelo INSS.</div>
+      <div class="alert alert-info"><strong>Tema 15 TNU</strong> Pensão por morte não é partilhada entre viúva e concubina em relações paralelas ao casamento.</div>
+      <hr class="divider">
+      <h3>Grupo Familiar — Inclusão/Exclusão</h3>
+      <div style="overflow-x:auto">
+        <table class="gloss-table">
+          <thead><tr><th>Parentesco</th><th>Inclui?</th></tr></thead>
+          <tbody>
+            <tr><td>Cônjuge / Companheiro(a)</td><td>Sim, se na mesma residência</td></tr>
+            <tr><td>Pais, madrasta, padrasto</td><td>Sim, se na mesma residência</td></tr>
+            <tr><td>Irmãos solteiros</td><td>Sim, se na mesma residência</td></tr>
+            <tr><td>Filhos e enteados solteiros</td><td>Sim, se no mesmo endereço</td></tr>
+            <tr><td>Menores sob tutela judicial</td><td>Sim, com comprovação</td></tr>
+            <tr><td>Avós, tios, netos, primos</td><td>Não (mesmo morando juntos)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ CONSUMIDOR / BANCÁRIO -->
+<div id="tab-consumidor" class="tab-panel">
+  <div class="page-title">Consumidor / Bancário</div>
+  <div class="page-sub">Súmulas do STJ, LGPD, direitos do consumidor e proteção contra fraudes bancárias.</div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>Súmulas Essenciais — STJ</h3>
+      <div class="alert alert-info"><strong>Súmula 479</strong> Bancos respondem objetivamente por fraudes de terceiros (fortuito interno) em operações bancárias. Aplica-se a clonagem de cartão, empréstimo falso, transferência não autorizada.</div>
+      <div class="alert alert-info"><strong>Súmula 532</strong> Envio de cartão de crédito sem prévia solicitação é prática abusiva e ilícito indenizável.</div>
+      <div class="alert alert-info"><strong>Súmula 477</strong> Decadência de 90 dias do CDC não se aplica à prestação de contas sobre tarifas e encargos bancários.</div>
+      <div class="alert alert-info"><strong>Súmula 472</strong> Cobrança de comissão de permanência exclui juros de mora, multa e juros remuneratórios concomitantes.</div>
+      <div class="alert alert-info"><strong>Súmula 530</strong> Ausente taxa contratual, aplica-se taxa média de mercado do Banco Central.</div>
+      <div class="alert alert-info"><strong>Súmula 675</strong> Procon pode sancionar empresas de energia, telefonia e bancos mesmo sendo setores regulados.</div>
+    </div>
+    <div class="card">
+      <h3>LGPD e Proteção de Dados</h3>
+      <div class="alert alert-warn"><strong>Dados comuns vazados</strong> Não geram dano moral presumido (in re ipsa). O titular deve demonstrar o prejuízo concreto sofrido. (STJ 2023-2025)</div>
+      <div class="alert alert-danger"><strong>Dados sensíveis vazados</strong> Registros médicos, dados financeiros profundos, seguros de vida → dano moral presumido (in re ipsa). (STJ — Ministra Nancy Andrighi)</div>
+      <div class="alert alert-ok"><strong>Excludente de responsabilidade</strong> Se a empresa adotou medidas imediatas de contenção e comunicou ativamente os clientes afetados (arts. 46 e 50 LGPD), pode ser excluída a culpa. (Caso XP Investimentos, março 2025)</div>
+      <hr class="divider">
+      <h3>Direitos do Consumidor — CDC</h3>
+      <div class="alert alert-info"><strong>Art. 49 CDC</strong> Compras pela internet / fora do estabelecimento: direito de arrependimento em até 7 dias do recebimento, sem precisar justificar.</div>
+      <div class="alert alert-info"><strong>Art. 12 CDC</strong> Responsabilidade civil objetiva do fabricante por defeitos de projeto, fabricação ou informação inadequada. Independe de culpa.</div>
+      <div class="alert alert-info"><strong>Art. 40 CDC</strong> Orçamento de serviços deve ser gratuito e ter validade mínima de 10 dias.</div>
+      <div class="alert alert-warn"><strong>STJ — REsp 2.161.702</strong> CDC não se aplica ao SUS, mas admite-se inversão do ônus da prova contra o Estado se o paciente for hipossuficiente.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ OFÍCIOS -->
+<div id="tab-oficios" class="tab-panel">
+  <div class="page-title">Expedidor de Ofícios</div>
+  <div class="page-sub">Gere o texto do ofício para copiar no sistema DPE.</div>
+  <div class="card">
+    <div class="grid-2">
+      <div>
+        <label>Tipo de Ofício</label>
+        <select id="tipo-oficio" onchange="renderOficio()">
+          <option value="">— selecione —</option>
+          <option value="religamento_cpfl">CPFL — Religamento + Aferimento de Medidor</option>
+          <option value="historico_enel">ENEL — Histórico de Débitos e Acordo</option>
+          <option value="dae_agua">DAE / SAAE — Débitos de Água</option>
+          <option value="medico_interdicao">Ofício Médico — Laudo para Interdição</option>
+          <option value="sindical_despejo">Prazo Suplementar — Desocupação / Despejo</option>
+          <option value="desarquivamento">Petição — Desarquivamento de Processo</option>
+          <option value="reiterado">Ofício Reiterado (qualquer órgão)</option>
+          <option value="cdhu">CDHU — Informações e Contrato</option>
+          <option value="natijus">NATIJUS — Nota Técnica para Saúde</option>
+        </select>
+      </div>
+      <div>
+        <label>Nº do Ofício / Protocolo</label>
+        <input type="text" id="num-oficio" placeholder="Ex: 10573392/2025" oninput="renderOficio()">
+      </div>
+      <div>
+        <label>Nome do(a) Usuário(a)</label>
+        <input type="text" id="nome-usuario" placeholder="Nome completo" oninput="renderOficio()">
+      </div>
+      <div>
+        <label>CPF do(a) Usuário(a)</label>
+        <input type="text" id="cpf-usuario" placeholder="000.000.000-00" oninput="renderOficio()">
+      </div>
+      <div>
+        <label>Endereço do(a) Usuário(a)</label>
+        <input type="text" id="end-usuario" placeholder="Rua, nº, bairro, cidade/SP" oninput="renderOficio()">
+      </div>
+      <div>
+        <label>Defensora / Defensor Público(a)</label>
+        <input type="text" id="nome-defensor" placeholder="Nome completo" oninput="renderOficio()">
+      </div>
+      <div>
+        <label>Data do Ofício</label>
+        <input type="date" id="data-oficio" oninput="renderOficio()">
+      </div>
+      <div id="campo-extra-wrap"></div>
+    </div>
+    <div id="output-oficios" class="output-box"><span class="placeholder-text">Preencha os campos para gerar o ofício...</span></div>
+    <button class="btn btn-ok" style="margin-top:10px" onclick="copiarOficio()">Copiar texto</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ DECLARAÇÕES -->
+<div id="tab-declaracoes" class="tab-panel">
+  <div class="page-title">Declarações Rápidas</div>
+  <div class="page-sub">Selecione a declaração, preencha os dados e copie o texto gerado.</div>
+  <div class="card">
+    <label>Tipo de Declaração</label>
+    <select id="tipo-declaracao" onchange="renderDeclaracao()">
+      <option value="">— selecione —</option>
+      <option value="comparecimento_presencial">Comparecimento Presencial</option>
+      <option value="comparecimento_virtual">Comparecimento Virtual</option>
+      <option value="renuncia_heranca">Renúncia de Direitos Hereditários</option>
+      <option value="ausencia_auxilio_creche">Ausência de Recebimento de Auxílio-Creche</option>
+      <option value="nao_oposicao_curatela">Não Oposição à Curatela</option>
+      <option value="responsabilidade_curatela">Responsabilidade do(a) Curador(a)</option>
+    </select>
+    <div id="decl-fields" style="margin-top:12px"></div>
+    <div id="output-declaracao" class="output-box"><span class="placeholder-text">Selecione uma declaração acima...</span></div>
+    <button class="btn btn-ok" style="margin-top:10px" onclick="copiarDeclaracao()">Copiar declaração</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ PEÇAS INICIAIS -->
+<div id="tab-pecas" class="tab-panel">
+  <div class="page-title">Gerador de Peças Iniciais</div>
+  <div class="page-sub">Preencha os dados e copie o texto gerado. Campos em branco ficam como lacunas.</div>
+  <div class="card">
+    <label>Tipo de Ação</label>
+    <select id="pi-tipo" onchange="renderPI()">
+      <option value="">— selecione —</option>
+      <optgroup label="Família / Alimentos">
+        <option value="pi_alimentos_filhos">Ação de Alimentos (filhos menores)</option>
+        <option value="pi_alimentos_mae">Ação de Alimentos (filhos para mãe idosa/interdita)</option>
+        <option value="pi_alimentos_guarda">Ação de Alimentos + Guarda e Convivência</option>
+        <option value="pi_exoneracao">Ação de Exoneração de Alimentos</option>
+        <option value="pi_guarda_avos">Regulamentação de Guarda (avós / terceiros)</option>
+      </optgroup>
+      <optgroup label="Saúde / Cirurgia">
+        <option value="pi_cirurgia">Cirurgia pelo SUS — Obrigação de Fazer c/ Tutela de Urgência</option>
+        <option value="pi_cirurgia_menor">Cirurgia pelo SUS (menor) — Vara Infância e Juventude</option>
+      </optgroup>
+      <optgroup label="Habitação / Moradia">
+        <option value="pi_cuem">CUEM — Concessão de Uso Especial para Moradia</option>
+      </optgroup>
+    </select>
+    <div id="pi-campos" style="margin-top:15px"></div>
+    <div id="pi-alerta" style="margin-top:10px"></div>
+    <div id="output-pi" class="output-box" style="display:none;min-height:400px;font-family:'Courier New',monospace;font-size:11.5px"></div>
+    <div id="pi-btns" style="margin-top:10px;display:none">
+      <button class="btn btn-ok" onclick="copiarPI()">Copiar peça</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ CALCULADORAS -->
+<div id="tab-calculadora" class="tab-panel">
+  <div class="page-title">Calculadoras Jurídicas</div>
+  <div class="page-sub">Alimentos, valor da causa, prazos processuais e verificação de prescrição trabalhista.</div>
+  <div class="inner-tabs">
+    <button class="inner-tab active" onclick="switchInner('calc','alimentos-panel')">Alimentos</button>
+    <button class="inner-tab" onclick="switchInner('calc','vc-panel')">Valor da Causa</button>
+    <button class="inner-tab" onclick="switchInner('calc','prazos-panel')">Prazos</button>
+    <button class="inner-tab" onclick="switchInner('calc','prescricao-panel')">Prescrição Trabalhista</button>
+  </div>
+  <div id="calc-alimentos-panel" class="inner-panel active">
+    <div class="card">
+      <h3>Calculadora de Alimentos — 2026</h3>
+      <label>Situação do alimentante</label>
+      <select id="calc-situacao" onchange="calcAlimentos()">
+        <option value="">— selecione —</option>
+        <option value="formal">Empregado com registro (CLT)</option>
+        <option value="informal">Autônomo / Desempregado / Informal</option>
+      </select>
+      <div id="calc-formal-wrap" style="display:none">
+        <div class="grid-2">
+          <div><label>Salário bruto (R$)</label><input type="number" id="calc-bruto" placeholder="Ex: 3500.00" oninput="calcAlimentos()" step="0.01"></div>
+          <div><label>Desconto INSS (R$)</label><input type="number" id="calc-inss" placeholder="Ex: 385.00" oninput="calcAlimentos()" step="0.01"></div>
+          <div><label>Desconto sindical (R$)</label><input type="number" id="calc-sindicato" placeholder="Ex: 0" oninput="calcAlimentos()" step="0.01"></div>
+          <div><label>Percentual pleiteado (%)</label><input type="number" id="calc-percentual" placeholder="33.33" oninput="calcAlimentos()" step="0.01"></div>
+        </div>
+      </div>
+      <div id="calc-informal-wrap" style="display:none">
+        <label>Referência</label>
+        <select id="calc-informal-ref" onchange="calcAlimentos()">
+          <option value="1">1 salário mínimo (R$ 1.621,00)</option>
+          <option value="1.5">1,5 salário mínimo (R$ 2.431,50)</option>
+          <option value="2">2 salários mínimos (R$ 3.242,00)</option>
+          <option value="custom">Valor personalizado</option>
+        </select>
+        <div id="calc-custom-wrap" style="display:none">
+          <label>Valor da pensão (R$)</label>
+          <input type="number" id="calc-custom" placeholder="Ex: 1200.00" oninput="calcAlimentos()" step="0.01">
+        </div>
+      </div>
+      <div id="resultado-alimentos" style="display:none" class="ia-result"></div>
+    </div>
+  </div>
+  <div id="calc-vc-panel" class="inner-panel">
+    <div class="card">
+      <h3>Calculadora de Valor da Causa</h3>
+      <label>Tipo de ação</label>
+      <select id="calc-vc-tipo" onchange="calcValorCausa()">
+        <option value="">— selecione —</option>
+        <option value="alimentos_12x">Ação de Alimentos (12 meses)</option>
+        <option value="divorcio_sem_bens">Divórcio sem bens</option>
+        <option value="divorcio_com_bens">Divórcio com bens</option>
+        <option value="execucao_alimentos">Execução de Alimentos</option>
+        <option value="cumprimento">Cumprimento de Sentença</option>
+      </select>
+      <div id="calc-vc-campos" style="margin-top:10px"></div>
+      <div id="resultado-vc" style="display:none" class="ia-result"></div>
+    </div>
+  </div>
+  <div id="calc-prazos-panel" class="inner-panel">
+    <div class="card">
+      <h3>Calculadora de Prazos</h3>
+      <div class="alert alert-info"><strong>Domicílio Judicial Eletrônico (desde 16/05/2025)</strong> Prazos contados exclusivamente a partir das publicações no DJEN e Domicílio Eletrônico Nacional. Citação eletrônica confirmada: prazo inicia no 5º dia útil após a confirmação. Não confirmada (PJ privada): prazo não se inicia — exige citação física.</div>
+      <div class="grid-2">
+        <div>
+          <label>Data de início (intimação / publicação)</label>
+          <input type="date" id="prazo-inicio" oninput="calcPrazos()">
+        </div>
+        <div>
+          <label>Tipo de prazo</label>
+          <select id="prazo-tipo" onchange="calcPrazos()">
+            <option value="">— selecione —</option>
+            <option value="15">15 dias úteis — contestação (CPC)</option>
+            <option value="5">5 dias úteis — embargos de declaração (CPC)</option>
+            <option value="15_clt">15 dias — recurso ordinário trabalhista</option>
+            <option value="8_clt">8 dias — RR, AP, AI trabalhista</option>
+            <option value="5_clt">5 dias — embargos dec. trabalhista</option>
+            <option value="30">30 dias — genérico</option>
+            <option value="10">10 dias — genérico</option>
+            <option value="custom">Personalizado</option>
+          </select>
+        </div>
+      </div>
+      <div id="prazo-custom-wrap" style="display:none">
+        <label>Número de dias</label>
+        <input type="number" id="prazo-custom-dias" placeholder="Ex: 20" oninput="calcPrazos()">
+      </div>
+      <div id="resultado-prazo" style="display:none" class="ia-result"></div>
+    </div>
+  </div>
+  <div id="calc-prescricao-panel" class="inner-panel">
+    <div class="card">
+      <h3>Verificador de Prescrição Trabalhista</h3>
+      <div class="grid-2">
+        <div>
+          <label>Data da demissão / extinção do contrato</label>
+          <input type="date" id="data-demissao" oninput="calcPrescricao()">
+        </div>
+        <div>
+          <label>Data de hoje (ajuizamento pretendido)</label>
+          <input type="date" id="data-ajuizamento" oninput="calcPrescricao()">
+        </div>
+      </div>
+      <div id="resultado-prescricao" style="display:none" class="ia-result"></div>
+      <div class="alert alert-info" style="margin-top:12px;"><strong>Regras de prescrição trabalhista</strong><br>
+        Bienal: limite de 2 anos após a extinção do contrato para ajuizar a ação (art. 7º, XXIX, CF).<br>
+        Quinquenal: limitada a cobrar apenas os últimos 5 anos contados da distribuição (art. 11 CLT).<br>
+        Intercorrente: 2 anos a partir do momento em que o exequente deixa de cumprir determinação judicial (art. 11-A CLT).
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ GLOSSÁRIO -->
+<div id="tab-glossario" class="tab-panel">
+  <div class="page-title">Glossário Jurídico</div>
+  <div class="page-sub">Termos técnicos com tradução em linguagem simples. Busque por palavra-chave.</div>
+  <div class="card">
+    <input type="text" id="gloss-busca" placeholder="Buscar termo... Ex: agravo, tutela, alvará" oninput="filtrarGlossario()" style="margin-bottom:16px">
+    <div style="overflow-x:auto">
+      <table class="gloss-table" id="gloss-table">
+        <thead><tr><th>Termo Técnico</th><th>Linguagem Simples</th></tr></thead>
+        <tbody id="gloss-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ CONTATOS -->
+<div id="tab-contatos" class="tab-panel">
+  <div class="page-title">Contatos e Varas</div>
+  <div class="page-sub">Endereços, telefones e competências da microrregião de Jundiaí.</div>
+
+  <div class="grid-2">
+    <div>
+      <div class="contato-card">
+        <div class="c-tag">DPE-SP · Estadual</div>
+        <div class="c-title">Defensoria Pública do Estado — Regional Jundiaí</div>
+        <div class="c-detail">
+          Rua Marechal Deodoro da Fonseca, 646, Centro, Jundiaí — SP<br>
+          Tel: (11) 4521-1230 · (11) 4586-3475 · (11) 4521-4903<br>
+          WhatsApp: (11) 91086-2201<br>
+          Central: 0800 773 4340<br>
+          <strong>Competência:</strong> Cível, Família, Sucessões, Criminal, Violência Doméstica (Foro de Jundiaí)
+        </div>
+      </div>
+      <div class="contato-card">
+        <div class="c-tag">DPU · Federal</div>
+        <div class="c-title">Defensoria Pública da União — Unidade Campinas</div>
+        <div class="c-detail">
+          Rua Jorge Krug, 211, Jardim Guanabara, Campinas — SP, CEP 13023-210<br>
+          Tel: (19) 3722-8300 · (19) 98386-0466<br>
+          E-mail: dpu.campinas@dpu.gov.br<br>
+          <strong>Competência:</strong> Demandas federais, previdenciárias e assistenciais (inclui Jundiaí)
+        </div>
+      </div>
+      <div class="contato-card">
+        <div class="c-tag">Justiça Federal</div>
+        <div class="c-title">JF Jundiaí — 28ª Subseção Judiciária</div>
+        <div class="c-detail">
+          Rua Mario Borin, 125, Chácara Urbana, Jundiaí — SP, CEP 13201-836<br>
+          E-mail 1ª Vara: jundia-se01-@jfsp.jus.br<br>
+          E-mail 2ª Vara: jundia-se02-@jfsp.jus.br<br>
+          <strong>Competência:</strong> Matérias federais e JEF Cível (INSS, BPC)
+        </div>
+      </div>
+      <div class="contato-card">
+       <div class="c-tag">Justiça do Trabalho</div>
+        <div class="c-title">Fórum Trabalhista de Jundiaí — TRT 15ª Região</div>
+        <div class="c-detail">
+          Av. Carlos Salles Block, 56, Anhangabaú, Jundiaí — SP<br>
+          Tel: (19) 3236-2100 · Atendimento: seg–sex, 12h–18h<br>
+          <strong>Competência:</strong> 1ª a 5ª VT — Jundiaí, Itupeva, Louveira e Vinhedo
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="contato-card">
+        <div class="c-tag">Justiça do Trabalho</div>
+        <div class="c-title">Vara do Trabalho — Campo Limpo Paulista</div>
+        <div class="c-detail">
+          E-mail: daajundiai.scjundiai@trt15.jus.br<br>
+          <strong>Competência:</strong> Campo Limpo Paulista, Várzea Paulista e Jarinu
+        </div>
+      </div>
+      <div class="contato-card">
+        <div class="c-tag">Estado de SP</div>
+        <div class="c-title">Procuradoria Geral do Estado — Jundiaí</div>
+        <div class="c-detail">
+          Rua Euclides da Cunha, 345, Jundiaí — SP, CEP 13201-833<br>
+          Tel: (19) 3275-0097<br>
+          <strong>Competência:</strong> Representação judicial do Estado de SP
+        </div>
+      </div>
+      <div class="contato-card">
+        <div class="c-tag">União Federal</div>
+        <div class="c-title">Procuradoria da Fazenda Nacional — Jundiaí</div>
+        <div class="c-detail">
+          Rua Dr. Torres Neves, 508, Centro, Jundiaí — SP, CEP 13201-058<br>
+          Atendimento presencial: 8h–12h<br>
+          <strong>Competência:</strong> Execuções fiscais e débitos federais
+        </div>
+      </div>
+      <div class="contato-card">
+        <div class="c-tag">Cidadania</div>
+        <div class="c-title">Centro de Integração da Cidadania (CIC Jundiaí)</div>
+        <div class="c-detail">
+          Rua Alceu de Toledo Pontes, 200, CECAP I, Jundiaí — SP, CEP 13214-717<br>
+          Tel: (11) 4589-9472 · E-mail: cicjundiai@justica.sp.gov.br<br>
+          <strong>Competência:</strong> Direitos humanos, cidadania e orientação jurídica básica
+        </div>
+      </div>
+      <div class="contato-card">
+        <div class="c-tag">Assistência jurídica gratuita</div>
+        <div class="c-title">Núcleo de Prática Jurídica — Faculdade Anhanguera</div>
+        <div class="c-detail">
+          Campus Anhanguera Jundiaí — SP<br>
+          Atendimento: ter + qui (9h–11h · 17h–19h) · qua (14h–17h30)<br>
+          <strong>Competência:</strong> Assistência gratuita geral sem barreira socioeconômica rígida
+        </div>
+      </div>
+      <div class="alert alert-info" style="margin-top:12px"><strong>Regra de Competência Trabalhista</strong> Se a prestação de serviços ocorreu em Várzea Paulista, Campo Limpo Paulista ou Jarinu → distribuir na Vara do Trabalho de Campo Limpo Paulista. Para Jundiaí, Itupeva, Louveira ou Vinhedo → Fórum Trabalhista de Jundiaí.</div>
+      <div class="alert alert-warn"><strong>OAB Jundiaí — Convênio Assistência Judiciária</strong> Exige: moradia no município + renda ≤ 3 SM + ausência de bens imóveis, empresas ou veículos de alto valor.</div>
+    </div>
+  </div>
+</div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<script src="script.js"></script>
+</body>
+</html>
