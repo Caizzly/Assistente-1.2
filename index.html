@@ -3,22 +3,35 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JARVIS — Assistente Jurídico · DPE-SP Jundiaí</title>
+<title>OFICIAL — Assistente Jurídico · DPE-SP Jundiaí</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <!-- ═══════════════════════════════════════════════════════ SIDEBAR -->
 <div class="sidebar-overlay" id="sidebar-overlay" onclick="fecharSidebar()"></div>
-<nav class="sidebar" id="sidebar">  <div class="sidebar-logo">
+<nav class="sidebar" id="sidebar">
+<!-- ── SELETOR DE VISÃO ── -->
+  <div class="view-selector">
+    <button class="view-btn active" id="btn-estagiario" onclick="aplicarVisao('estagiario')">
+      🎓 Estagiário
+    </button>
+    <button class="view-btn" id="btn-advogado" onclick="aplicarVisao('advogado')">
+      ⚖ Advogado
+    </button>
+  </div>
+
+  <div class="sidebar-logo">
     <div class="logo-title">⚖ JARVIS v8</div>
     <div class="logo-sub">DPE-SP · Regional Jundiaí</div>
   </div>
 
+ <!-- Visível para os dois -->
   <div class="nav-section">Atendimento</div>
-  <button class="tab-btn active" onclick="sw('triagem')"><span class="ico">⬡</span>Triagem & Orientação</button>
+  <button class="tab-btn" onclick="sw('triagem')"><span class="ico">⬡</span>Triagem & Orientação</button>
   <button class="tab-btn" onclick="sw('orientacao-oficial')"><span class="ico">📌</span>Pauta do Oficial</button>
 
+  <!-- Visível para os dois -->
   <div class="nav-section">Áreas</div>
   <button class="tab-btn" onclick="sw('familia')"><span class="ico">◈</span>Família / Divórcio</button>
   <button class="tab-btn" onclick="sw('interdicao')"><span class="ico">◈</span>Interdição / Curatela</button>
@@ -29,24 +42,30 @@
   <button class="tab-btn" onclick="sw('previdencia')"><span class="ico">◈</span>Previdência / BPC</button>
   <button class="tab-btn" onclick="sw('consumidor')"><span class="ico">◈</span>Consumidor / Bancário</button>
 
+  <!-- Expedição: estagiário usa tudo, advogado vê só Peças -->
   <div class="nav-section">Expedição</div>
-  <button class="tab-btn" onclick="sw('oficios')"><span class="ico">✉</span>Ofícios</button>
-  <button class="tab-btn" onclick="sw('declaracoes')"><span class="ico">□</span>Declarações</button>
+  <button class="tab-btn view-estagiario" onclick="sw('oficios')"><span class="ico">✉</span>Ofícios</button>
+  <button class="tab-btn view-estagiario" onclick="sw('declaracoes')"><span class="ico">□</span>Declarações</button>
   <button class="tab-btn" onclick="sw('pecas')"><span class="ico">≡</span>Peças Iniciais</button>
 
+  <!-- Ferramentas: advogado tem acesso a tudo, estagiário só glossário e contatos -->
   <div class="nav-section">Ferramentas</div>
-  <button class="tab-btn" onclick="sw('calculadora')"><span class="ico">∑</span>Calculadoras</button>
+  <button class="tab-btn view-advogado" onclick="sw('calculadora')"><span class="ico">∑</span>Calculadoras</button>
   <button class="tab-btn" onclick="sw('glossario')"><span class="ico">Α</span>Glossário Jurídico</button>
   <button class="tab-btn" onclick="sw('contatos')"><span class="ico">◎</span>Contatos e Varas</button>
+
 </nav>
 
-<!-- ═══════════════════════════════════════════════════════ MAIN -->
-<div class="main">
+<!-- ═══════════════════════════════════════════════════════ MAIN --><div class="main">
 <header class="topbar">
   <button class="hamburger" onclick="toggleSidebar()" id="hamburger-btn" aria-label="Menu">
     <span></span><span></span><span></span>
   </button>    <span class="topbar-title" id="page-title">Triagem & Orientação</span>
-    <div class="topbar-status"><div class="status-dot"></div>Base 2026 ativa</div>
+    <div class="global-search">
+      <input type="search" id="global-search" placeholder="Buscar checklist, modelo, glossário..." oninput="buscarGlobal(this.value)" onkeydown="atalhosBusca(event)">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="topbar-status"><div class="status-dot"></div><span>Base 2026 ativa</span></div>
   </header>
 
   <div class="content">
@@ -579,6 +598,22 @@
   </div>
 </div>
 
+<!-- ════════════════════════════════ GLOSSÁRIO -->
+<div id="tab-glossario" class="tab-panel">
+  <div class="page-title">Glossário Jurídico</div>
+  <div class="page-sub">Busque termos jurídicos comuns e explicações rápidas para atendimento.</div>
+  <div class="card">
+    <label>Buscar termo</label>
+    <input type="text" id="gloss-busca" placeholder="Ex: tutela, prescrição, acórdão..." oninput="filtrarGlossario()">
+    <div style="overflow-x:auto">
+      <table class="gloss-table">
+        <thead><tr><th>Termo</th><th>Explicação</th></tr></thead>
+        <tbody id="gloss-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 <!-- ════════════════════════════════ OFÍCIOS -->
 <div id="tab-oficios" class="tab-panel">
   <div class="page-title">Expedidor de Ofícios</div>
@@ -673,7 +708,11 @@
       </optgroup>
       <optgroup label="Habitação / Moradia">
         <option value="pi_cuem">CUEM — Concessão de Uso Especial para Moradia</option>
-      </optgroup>
+        <optgroup label="Defesa / Recursos">
+        <option value="pi_contestacao">Contestação Genérica</option>
+        <option value="pi_recurso_inominado">Recurso Inominado (Juizados Especiais)</option>
+        <option value="pi_cumprimento_sentenca">Cumprimento de Sentença</option>
+       </optgroup>
     </select>
     <div id="pi-campos" style="margin-top:15px"></div>
     <div id="pi-alerta" style="margin-top:10px"></div>
@@ -683,7 +722,6 @@
     </div>
   </div>
 </div>
-
 <!-- ════════════════════════════════ CALCULADORAS -->
 <div id="tab-calculadora" class="tab-panel">
   <div class="page-title">Calculadoras Jurídicas</div>
@@ -693,7 +731,10 @@
     <button class="inner-tab" onclick="switchInner('calc','vc-panel')">Valor da Causa</button>
     <button class="inner-tab" onclick="switchInner('calc','prazos-panel')">Prazos</button>
     <button class="inner-tab" onclick="switchInner('calc','prescricao-panel')">Prescrição Trabalhista</button>
+    <button class="inner-tab" onclick="switchInner('calc','sucumbencia-panel')">Sucumbência</button>
+    <button class="inner-tab" onclick="switchInner('calc','correcao-panel')">Juros & Correção</button>
   </div>
+
   <div id="calc-alimentos-panel" class="inner-panel active">
     <div class="card">
       <h3>Calculadora de Alimentos — 2026</h3>
@@ -727,6 +768,7 @@
       <div id="resultado-alimentos" style="display:none" class="ia-result"></div>
     </div>
   </div>
+
   <div id="calc-vc-panel" class="inner-panel">
     <div class="card">
       <h3>Calculadora de Valor da Causa</h3>
@@ -743,6 +785,7 @@
       <div id="resultado-vc" style="display:none" class="ia-result"></div>
     </div>
   </div>
+
   <div id="calc-prazos-panel" class="inner-panel">
     <div class="card">
       <h3>Calculadora de Prazos</h3>
@@ -774,6 +817,7 @@
       <div id="resultado-prazo" style="display:none" class="ia-result"></div>
     </div>
   </div>
+
   <div id="calc-prescricao-panel" class="inner-panel">
     <div class="card">
       <h3>Verificador de Prescrição Trabalhista</h3>
@@ -788,87 +832,88 @@
         </div>
       </div>
       <div id="resultado-prescricao" style="display:none" class="ia-result"></div>
-      <div class="alert alert-info" style="margin-top:12px;"><strong>Regras de prescrição trabalhista</strong><br>
+      <div class="alert alert-info" style="margin-top:12px;">
+        <strong>Regras de prescrição trabalhista</strong><br>
         Bienal: limite de 2 anos após a extinção do contrato para ajuizar a ação (art. 7º, XXIX, CF).<br>
         Quinquenal: limitada a cobrar apenas os últimos 5 anos contados da distribuição (art. 11 CLT).<br>
         Intercorrente: 2 anos a partir do momento em que o exequente deixa de cumprir determinação judicial (art. 11-A CLT).
       </div>
     </div>
   </div>
-</div>
 
-<!-- ════════════════════════════════ GLOSSÁRIO -->
-<div id="tab-glossario" class="tab-panel">
-  <div class="page-title">Glossário Jurídico</div>
-  <div class="page-sub">Termos técnicos com tradução em linguagem simples. Busque por palavra-chave.</div>
-  <div class="card">
-    <input type="text" id="gloss-busca" placeholder="Buscar termo... Ex: agravo, tutela, alvará" oninput="filtrarGlossario()" style="margin-bottom:16px">
-    <div style="overflow-x:auto">
-      <table class="gloss-table" id="gloss-table">
-        <thead><tr><th>Termo Técnico</th><th>Linguagem Simples</th></tr></thead>
-        <tbody id="gloss-body"></tbody>
-      </table>
+  <div id="calc-sucumbencia-panel" class="inner-panel">
+    <div class="card">
+      <h3>Honorários de Sucumbência — Art. 85 CPC</h3>
+      <div class="alert alert-info"><strong>Regra do art. 85 §2º CPC</strong> O juiz fixa entre 10% e 20% sobre o valor da condenação. Na Fazenda Pública os percentuais são escalonados (art. 85 §3º).</div>
+      <div class="grid-2">
+        <div>
+          <label>Valor da condenação (R$)</label>
+          <input type="number" id="suc-valor" placeholder="Ex: 50000.00" oninput="calcSucumbencia()" step="0.01">
+          <label>Percentual mínimo (%)</label>
+          <input type="number" id="suc-min" placeholder="10" oninput="calcSucumbencia()" step="0.01" value="10">
+          <label>Percentual máximo (%)</label>
+          <input type="number" id="suc-max" placeholder="20" oninput="calcSucumbencia()" step="0.01" value="20">
+          <label>Réu é Fazenda Pública?</label>
+          <select id="suc-fazenda" onchange="calcSucumbencia()">
+            <option value="nao">Não — regra geral (10% a 20%)</option>
+            <option value="sim">Sim — escalonamento art. 85 §3º</option>
+          </select>
+        </div>
+        <div id="resultado-sucumbencia" class="ia-result" style="display:none"></div>
+      </div>
     </div>
   </div>
+
+  <div id="calc-correcao-panel" class="inner-panel">
+    <div class="card">
+      <h3>Mesa de Cálculos — Juros e Correção Monetária</h3>
+      <div class="alert alert-warn"><strong>Estimativa para orientação — não substitui cálculo pericial</strong> Para execuções de sentença, sempre apresentar planilha detalhada.</div>
+      <div class="grid-2">
+        <div>
+          <label>Valor original da dívida (R$)</label>
+          <input type="number" id="cor-valor" placeholder="Ex: 10000.00" oninput="calcCorrecao()" step="0.01">
+          <label>Data de início (vencimento ou dano)</label>
+          <input type="date" id="cor-inicio" oninput="calcCorrecao()">
+          <label>Data final</label>
+          <input type="date" id="cor-fim" oninput="calcCorrecao()">
+          <label>Índice de correção</label>
+          <select id="cor-indice" onchange="calcCorrecao()">
+            <option value="ipca">IPCA (padrão cível)</option>
+            <option value="selic">SELIC (trabalhista / tributário)</option>
+            <option value="igpm">IGP-M (contratos de aluguel)</option>
+            <option value="manual">Taxa manual (% ao mês)</option>
+          </select>
+          <div id="cor-manual-wrap" style="display:none">
+            <label>Taxa mensal de correção (%)</label>
+            <input type="number" id="cor-taxa-manual" placeholder="Ex: 0.5" oninput="calcCorrecao()" step="0.01">
+          </div>
+          <label>Juros de mora</label>
+          <select id="cor-juros" onchange="calcCorrecao()">
+            <option value="1">1% ao mês (padrão cível — art. 406 CC)</option>
+            <option value="0.5">0,5% ao mês (relações de consumo)</option>
+            <option value="0">Sem juros (só correção)</option>
+            <option value="custom">Taxa personalizada</option>
+          </select>
+          <div id="cor-juros-custom-wrap" style="display:none">
+            <label>Taxa de juros mensal personalizada (%)</label>
+            <input type="number" id="cor-juros-custom" placeholder="Ex: 2" oninput="calcCorrecao()" step="0.01">
+          </div>
+          <label>Multa contratual / mora (%, opcional)</label>
+          <input type="number" id="cor-multa" placeholder="0" oninput="calcCorrecao()" step="0.01" value="0">
+        </div>
+        <div id="resultado-correcao" class="ia-result" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- ════════════════════════════════ CONTATOS -->
 <div id="tab-contatos" class="tab-panel">
   <div class="page-title">Contatos e Varas</div>
-  <div class="page-sub">Endereços, telefones e competências da microrregião de Jundiaí.</div>
-
+  <div class="page-sub">Órgãos, serviços e regras práticas de competência para encaminhamento.</div>
   <div class="grid-2">
-    <div>
-      <div class="contato-card">
-        <div class="c-tag">DPE-SP · Estadual</div>
-        <div class="c-title">Defensoria Pública do Estado — Regional Jundiaí</div>
-        <div class="c-detail">
-          Rua Marechal Deodoro da Fonseca, 646, Centro, Jundiaí — SP<br>
-          Tel: (11) 4521-1230 · (11) 4586-3475 · (11) 4521-4903<br>
-          WhatsApp: (11) 91086-2201<br>
-          Central: 0800 773 4340<br>
-          <strong>Competência:</strong> Cível, Família, Sucessões, Criminal, Violência Doméstica (Foro de Jundiaí)
-        </div>
-      </div>
-      <div class="contato-card">
-        <div class="c-tag">DPU · Federal</div>
-        <div class="c-title">Defensoria Pública da União — Unidade Campinas</div>
-        <div class="c-detail">
-          Rua Jorge Krug, 211, Jardim Guanabara, Campinas — SP, CEP 13023-210<br>
-          Tel: (19) 3722-8300 · (19) 98386-0466<br>
-          E-mail: dpu.campinas@dpu.gov.br<br>
-          <strong>Competência:</strong> Demandas federais, previdenciárias e assistenciais (inclui Jundiaí)
-        </div>
-      </div>
-      <div class="contato-card">
-        <div class="c-tag">Justiça Federal</div>
-        <div class="c-title">JF Jundiaí — 28ª Subseção Judiciária</div>
-        <div class="c-detail">
-          Rua Mario Borin, 125, Chácara Urbana, Jundiaí — SP, CEP 13201-836<br>
-          E-mail 1ª Vara: jundia-se01-@jfsp.jus.br<br>
-          E-mail 2ª Vara: jundia-se02-@jfsp.jus.br<br>
-          <strong>Competência:</strong> Matérias federais e JEF Cível (INSS, BPC)
-        </div>
-      </div>
-      <div class="contato-card">
-       <div class="c-tag">Justiça do Trabalho</div>
-        <div class="c-title">Fórum Trabalhista de Jundiaí — TRT 15ª Região</div>
-        <div class="c-detail">
-          Av. Carlos Salles Block, 56, Anhangabaú, Jundiaí — SP<br>
-          Tel: (19) 3236-2100 · Atendimento: seg–sex, 12h–18h<br>
-          <strong>Competência:</strong> 1ª a 5ª VT — Jundiaí, Itupeva, Louveira e Vinhedo
-        </div>
-      </div>
-    </div>
-    <div>
-      <div class="contato-card">
-        <div class="c-tag">Justiça do Trabalho</div>
-        <div class="c-title">Vara do Trabalho — Campo Limpo Paulista</div>
-        <div class="c-detail">
-          E-mail: daajundiai.scjundiai@trt15.jus.br<br>
-          <strong>Competência:</strong> Campo Limpo Paulista, Várzea Paulista e Jarinu
-        </div>
-      </div>
+    <div class="card">
       <div class="contato-card">
         <div class="c-tag">Estado de SP</div>
         <div class="c-title">Procuradoria Geral do Estado — Jundiaí</div>

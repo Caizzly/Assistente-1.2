@@ -11,21 +11,28 @@ const TITLES = {
 };
 
 // ─── NAV ────────────────────────────────────────────────────────────
-function sw(id) {
+function sw(id, btn) {
+  const panel = document.getElementById('tab-' + id);
+  if (!panel) return;
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + id).classList.add('active');
-  event.currentTarget.classList.add('active');
+  panel.classList.add('active');
+  const activeBtn = btn || window.event?.currentTarget || [...document.querySelectorAll('.tab-btn')]
+    .find(b => (b.getAttribute('onclick') || '').includes(`sw('${id}')`));
+  if (activeBtn) activeBtn.classList.add('active');
   document.getElementById('page-title').textContent = TITLES[id] || id;
 }
 
-function switchInner(group, panel) {
+function switchInner(group, panel, btn) {
   const prefix = group + '-';
   document.querySelectorAll(`[id^="${prefix}"]`).forEach(p => { if (p.classList.contains('inner-panel')) p.classList.remove('active'); });
   document.getElementById(prefix + panel).classList.add('active');
-  const btns = event.currentTarget.closest('.tab-panel').querySelectorAll('.inner-tab');
-  btns.forEach(b => b.classList.remove('active'));
-  event.currentTarget.classList.add('active');
+  const activeBtn = btn || window.event?.currentTarget;
+  if (activeBtn) {
+    const btns = activeBtn.closest('.tab-panel').querySelectorAll('.inner-tab');
+    btns.forEach(b => b.classList.remove('active'));
+    activeBtn.classList.add('active');
+  }
 }
 
 // ─── PROGRESSO GENÉRICO ──────────────────────────────────────────────
@@ -37,6 +44,36 @@ function calcProg(id) {
   const cnt = document.getElementById('cnt-' + id);
   if (bar) bar.style.width = pct + '%';
   if (cnt) cnt.textContent = `${checked} / ${checkboxes.length} marcados`;
+  atualizarVisualChecks(`#tab-${id}`);
+  salvarChecklistEstatico(id);
+}
+
+function atualizarVisualChecks(scopeSelector) {
+  document.querySelectorAll(`${scopeSelector} .check-item`).forEach(item => {
+    const check = item.querySelector('input[type=checkbox]');
+    if (check) item.classList.toggle('checked', check.checked);
+  });
+}
+
+function salvarChecklistEstatico(id) {
+  const checks = [...document.querySelectorAll(`#tab-${id} input[type=checkbox]`)];
+  if (!checks.length) return;
+  localStorage.setItem(`jarvis_checks_${id}`, JSON.stringify(checks.map(c => c.checked)));
+}
+
+function restaurarChecklistsEstaticos() {
+  Object.keys(TITLES).forEach(id => {
+    const checks = [...document.querySelectorAll(`#tab-${id} input[type=checkbox]`)];
+    const salvo = JSON.parse(localStorage.getItem(`jarvis_checks_${id}`) || '[]');
+    if (!checks.length || !salvo.length) return;
+    checks.forEach((check, index) => { check.checked = !!salvo[index]; });
+    calcProg(id);
+  });
+}
+
+function checklistTriagemKey() {
+  const demanda = document.getElementById('atend-demanda')?.value || '';
+  return demanda ? `jarvis_triagem_${demanda}` : '';
 }
 
 // ─── TRIAGEM DINÂMICA ────────────────────────────────────────────────
@@ -239,6 +276,7 @@ function atualizarTriagem(val) {
   });
   cc.innerHTML = html;
   document.getElementById('progress-wrap').style.display = 'block';
+  restaurarTriagemAtual();
   calcProgTriagem();
 }
 
@@ -248,6 +286,23 @@ function calcProgTriagem() {
   const pct = all.length ? Math.round(checked/all.length*100) : 0;
   document.getElementById('prog-bar').style.width = pct+'%';
   document.getElementById('prog-label').textContent = `${checked} / ${all.length} documentos marcados`;
+  atualizarVisualChecks('#checklist-container');
+  salvarTriagemAtual();
+}
+
+function salvarTriagemAtual() {
+  const key = checklistTriagemKey();
+  if (!key) return;
+  const checks = [...document.querySelectorAll('#checklist-container input[type=checkbox]')];
+  localStorage.setItem(key, JSON.stringify(checks.map(c => c.checked)));
+}
+
+function restaurarTriagemAtual() {
+  const key = checklistTriagemKey();
+  if (!key) return;
+  const salvo = JSON.parse(localStorage.getItem(key) || '[]');
+  const checks = [...document.querySelectorAll('#checklist-container input[type=checkbox]')];
+  checks.forEach((check, index) => { check.checked = !!salvo[index]; });
 }
 
 // ─── PAUTA DO OFICIAL ────────────────────────────────────────────────
@@ -314,7 +369,7 @@ function analisarPauta() {
     html = `<div class="ia-card"><div class="ia-card-header">✦ Análise do Relato</div><div class="ia-card-body">
       ${det.chips || '<span style="font-size:12px;color:var(--ink-3)">Nenhuma demanda identificada automaticamente.</span>'}
       ${det.acoes ? `<div class="ia-result" style="margin-top:10px"><h4>Demanda Provável + Próximos Passos</h4>${det.acoes}</div>` : ''}
-      ${det.tab ? `<button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="sw('${det.tab}');document.querySelectorAll('.tab-btn').forEach(b=>{if(b.onclick&&b.onclick.toString().includes('${det.tab}'))b.classList.add('active')})">Ver aba completa →</button>` : ''}
+      ${det.tab ? `<button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="sw('${det.tab}')">Ver aba completa →</button>` : ''}
     </div></div>`;
   }
 
@@ -751,6 +806,124 @@ function gerarPI() {
   out.textContent = texto;
   out.style.display = 'block';
 }
+// ─── CALC SUCUMBÊNCIA ────────────────────────────────────────────────
+function calcSucumbencia() {
+  const valor   = parseFloat(document.getElementById('suc-valor').value) || 0;
+  const min     = parseFloat(document.getElementById('suc-min').value)   || 10;
+  const max     = parseFloat(document.getElementById('suc-max').value)   || 20;
+  const fazenda = document.getElementById('suc-fazenda').value;
+  const res     = document.getElementById('resultado-sucumbencia');
+  if (!valor) { res.style.display='none'; return; }
+
+  let txt = '';
+
+  if (fazenda === 'sim') {
+    // Escalonamento art. 85 §3º CPC — Fazenda Pública
+    const faixas = [
+      { ate: 200,    pct: 10 },
+      { ate: 2000,   pct: 8  },
+      { ate: 20000,  pct: 5  },
+      { ate: 100000, pct: 3  },
+      { ate: Infinity, pct: 1 }
+    ];
+    const SM = 1621.00;
+    let restante = valor;
+    let total    = 0;
+    let detalhes = '';
+    let anterior = 0;
+    for (const f of faixas) {
+      const limiteReais = f.ate === Infinity ? Infinity : f.ate * SM;
+      const base  = Math.min(restante, limiteReais - anterior);
+      const parte = base * (f.pct / 100);
+      total    += parte;
+      if (base > 0) {
+        detalhes += `${f.pct}% sobre R$ ${base.toLocaleString('pt-BR', {minimumFractionDigits:2})} = R$ ${parte.toLocaleString('pt-BR', {minimumFractionDigits:2})}\n`;
+      }
+      restante -= base;
+      anterior  = limiteReais;
+      if (restante <= 0) break;
+    }
+    txt = `FAZENDA PÚBLICA — Art. 85 §3º CPC\nBase de cálculo: R$ ${valor.toLocaleString('pt-BR',{minimumFractionDigits:2})}\n\nEscalonamento:\n${detalhes}\n─────────────────────────────\n💰 HONORÁRIOS TOTAIS: R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})}`;
+  } else {
+    const honMin = valor * (min / 100);
+    const honMax = valor * (max / 100);
+    txt = `REGRA GERAL — Art. 85 §2º CPC\nBase de cálculo: R$ ${valor.toLocaleString('pt-BR',{minimumFractionDigits:2})}\n\n💰 Com ${min}%: R$ ${honMin.toLocaleString('pt-BR',{minimumFractionDigits:2})}\n💰 Com ${max}%: R$ ${honMax.toLocaleString('pt-BR',{minimumFractionDigits:2})}\n\nFaixa esperada: R$ ${honMin.toLocaleString('pt-BR',{minimumFractionDigits:2})} a R$ ${honMax.toLocaleString('pt-BR',{minimumFractionDigits:2})}\n\nObs: Percentual exato será fixado pelo juiz conforme complexidade da causa, trabalho realizado e tempo de duração do processo.`;
+  }
+
+  res.style.display = 'block';
+  res.innerHTML = `<h4>Resultado — Honorários de Sucumbência</h4><pre style="white-space:pre-wrap;font-size:12px;line-height:1.7">${txt}</pre>`;
+}
+
+// ─── CALC JUROS & CORREÇÃO ────────────────────────────────────────────
+// Taxas médias anuais estimadas (simplificadas para orientação)
+const TAXAS_ANUAIS = { ipca: 4.62, selic: 10.50, igpm: 3.80 };
+
+function calcCorrecao() {
+  const val    = parseFloat(document.getElementById('cor-valor').value)  || 0;
+  const inicio = document.getElementById('cor-inicio').value;
+  const fim    = document.getElementById('cor-fim').value;
+  const indice = document.getElementById('cor-indice').value;
+  const juros  = document.getElementById('cor-juros').value;
+
+  // Mostra/esconde campos de taxa manual
+  document.getElementById('cor-manual-wrap').style.display      = indice === 'manual' ? 'block' : 'none';
+  document.getElementById('cor-juros-custom-wrap').style.display = juros  === 'custom'  ? 'block' : 'none';
+
+  const res = document.getElementById('resultado-correcao');
+  if (!val || !inicio || !fim) { res.style.display='none'; return; }
+
+  const dIni  = new Date(inicio + 'T12:00:00');
+  const dFim  = new Date(fim    + 'T12:00:00');
+  const meses = Math.max(0, (dFim - dIni) / (1000 * 60 * 60 * 24 * 30.4375));
+
+  // Correção monetária
+  let taxaMensalCorr = 0;
+  if (indice === 'manual') {
+    taxaMensalCorr = (parseFloat(document.getElementById('cor-taxa-manual').value) || 0) / 100;
+  } else {
+    taxaMensalCorr = (TAXAS_ANUAIS[indice] / 100) / 12;
+  }
+  const fatorCorr    = Math.pow(1 + taxaMensalCorr, meses);
+  const valorCorr    = val * fatorCorr;
+  const montanteCorr = valorCorr - val;
+
+  // Juros de mora (simples — padrão cível)
+  let taxaMensalJuros = 0;
+  if (juros === 'custom') {
+    taxaMensalJuros = (parseFloat(document.getElementById('cor-juros-custom').value) || 0) / 100;
+  } else {
+    taxaMensalJuros = parseFloat(juros) / 100;
+  }
+  const montanteJuros = val * taxaMensalJuros * meses;
+
+  // Multa
+  const pctMulta      = parseFloat(document.getElementById('cor-multa').value) || 0;
+  const valorMulta    = val * (pctMulta / 100);
+
+  const total = valorCorr + montanteJuros + valorMulta;
+
+  const nomesIndice = { ipca:'IPCA', selic:'SELIC', igpm:'IGP-M', manual:'Taxa manual' };
+
+  res.style.display = 'block';
+  res.innerHTML = `<h4>Resultado — Atualização Monetária</h4>
+<pre style="white-space:pre-wrap;font-size:12px;line-height:1.8">Valor original:       R$ ${val.toLocaleString('pt-BR',{minimumFractionDigits:2})}
+Período:              ${meses.toFixed(1)} meses
+Índice de correção:   ${nomesIndice[indice]}
+
+Valor corrigido:      R$ ${valorCorr.toLocaleString('pt-BR',{minimumFractionDigits:2})}
+(+ R$ ${montanteCorr.toLocaleString('pt-BR',{minimumFractionDigits:2})} de correção)
+
+Juros de mora:        R$ ${montanteJuros.toLocaleString('pt-BR',{minimumFractionDigits:2})}
+(${(taxaMensalJuros*100).toFixed(2)}% ao mês × ${meses.toFixed(1)} meses — juros simples)
+${pctMulta > 0 ? `Multa (${pctMulta}%):        R$ ${valorMulta.toLocaleString('pt-BR',{minimumFractionDigits:2})}` : 'Multa:                não aplicada'}
+
+─────────────────────────────
+💰 TOTAL ATUALIZADO:
+R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})}
+─────────────────────────────
+⚠ Estimativa para orientação.
+Execução exige planilha pericial detalhada.</pre>`;
+}
 
 function copiarPI() { const t=document.getElementById('output-pi').textContent; if(!t) return; navigator.clipboard.writeText(t).then(()=>alert('✔ Peça copiada!')); }
 
@@ -818,11 +991,139 @@ function renderGlossario() {
 }
 function filtrarGlossario() { glossFiltro = document.getElementById('gloss-busca').value; renderGlossario(); }
 
+let resultadosBuscaAtual = [];
+
+function normalizarBusca(txt) {
+  return (txt || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function montarIndiceBusca() {
+  const demandas = Object.entries(CHECKLISTS).map(([id, item]) => ({
+    tipo: 'Checklist',
+    titulo: nomeDemanda(id),
+    detalhe: [...(item.questoes || []), ...Object.values(item.docs || {}).flat(), ...(item.alertas || []).map(a => `${a.h} ${a.d}`)].join(' '),
+    tab: 'triagem',
+    demanda: id
+  }));
+
+  const abas = Object.entries(TITLES).map(([tab, titulo]) => ({
+    tipo: 'Aba',
+    titulo,
+    detalhe: `Abrir ${titulo}`,
+    tab
+  }));
+
+  const pauta = DEMANDA_MAP.map(item => ({
+    tipo: 'Pauta',
+    titulo: item.label,
+    detalhe: `${item.kw.join(' ')} ${item.acao}`,
+    tab: item.tab
+  }));
+
+  const glossario = GLOSSARIO.map(([titulo, detalhe]) => ({
+    tipo: 'Glossário',
+    titulo,
+    detalhe,
+    tab: 'glossario',
+    filtroGlossario: titulo
+  }));
+
+  return [...demandas, ...abas, ...pauta, ...glossario];
+}
+
+function nomeDemanda(id) {
+  const opt = document.querySelector(`#atend-demanda option[value="${id}"]`);
+  return opt ? opt.textContent.trim() : id.replaceAll('_', ' ');
+}
+
+function buscarGlobal(valor) {
+  const box = document.getElementById('search-results');
+  const termo = normalizarBusca(valor);
+  if (!box || termo.length < 2) {
+    if (box) box.classList.remove('open');
+    return;
+  }
+
+  resultadosBuscaAtual = montarIndiceBusca()
+    .map(item => {
+      const alvo = normalizarBusca(`${item.tipo} ${item.titulo} ${item.detalhe}`);
+      const score = alvo.includes(termo) ? (normalizarBusca(item.titulo).includes(termo) ? 2 : 1) : 0;
+      return {...item, score};
+    })
+    .filter(item => item.score > 0)
+    .sort((a, b) => b.score - a.score || a.titulo.localeCompare(b.titulo))
+    .slice(0, 8);
+
+  if (!resultadosBuscaAtual.length) {
+    box.innerHTML = '<div class="search-result"><strong>Nada encontrado</strong><span>Tente outro termo, como creche, curatela, BPC ou ofício.</span></div>';
+    box.classList.add('open');
+    return;
+  }
+
+  box.innerHTML = resultadosBuscaAtual.map((item, index) => `
+    <button class="search-result" type="button" onclick="abrirResultadoBusca(${index})">
+      <strong>${item.titulo}</strong>
+      <span>${item.tipo} · ${item.detalhe.slice(0, 120)}${item.detalhe.length > 120 ? '...' : ''}</span>
+    </button>
+  `).join('');
+  box.classList.add('open');
+}
+
+function abrirResultadoBusca(index) {
+  const item = resultadosBuscaAtual[index];
+  if (!item) return;
+  sw(item.tab || 'triagem');
+
+  if (item.demanda) {
+    const select = document.getElementById('atend-demanda');
+    if (select) {
+      select.value = item.demanda;
+      atualizarTriagem(item.demanda);
+    }
+  }
+
+  if (item.filtroGlossario) {
+    const input = document.getElementById('gloss-busca');
+    if (input) {
+      input.value = item.filtroGlossario;
+      filtrarGlossario();
+    }
+  }
+
+  const search = document.getElementById('global-search');
+  const box = document.getElementById('search-results');
+  if (search) search.value = '';
+  if (box) box.classList.remove('open');
+}
+
+function atalhosBusca(ev) {
+  if (ev.key === 'Escape') {
+    ev.currentTarget.value = '';
+    document.getElementById('search-results')?.classList.remove('open');
+  }
+}
+
 // ─── INIT ────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
   renderGlossario();
   const campoData = document.getElementById('data-oficio');
   if (campoData) campoData.valueAsDate = new Date();
+  document.addEventListener('change', function(ev) {
+    if (!ev.target.matches('input[type=checkbox]')) return;
+    const panel = ev.target.closest('.tab-panel');
+    if (panel?.id) {
+      const id = panel.id.replace('tab-', '');
+      salvarChecklistEstatico(id);
+      atualizarVisualChecks(`#${panel.id}`);
+    }
+  });
+  document.addEventListener('click', function(ev) {
+    if (!ev.target.closest('.global-search')) {
+      document.getElementById('search-results')?.classList.remove('open');
+    }
+  });
+  restaurarChecklistsEstaticos();
+  inicializarVisao();
 });
 // ─── MENU HAMBÚRGUER (CELULAR) ───────────────────────────────────────
 function toggleSidebar() {
@@ -865,3 +1166,58 @@ window.sw = function(id) {
 window.addEventListener('resize', function() {
   if (window.innerWidth > 768) fecharSidebar();
 });
+// ═══════════════════════════════════════════════════════════════════
+// SELETOR DE VISÃO — Estagiário / Advogado
+// Com localStorage: lembra a escolha mesmo após F5
+// ═══════════════════════════════════════════════════════════════════
+
+/**
+ * Aplica a visão escolhida na interface.
+ * @param {string} visao - 'estagiario' ou 'advogado'
+ */
+function aplicarVisao(visao) {
+
+  // 1. Salva no localStorage para lembrar após recarregar
+  localStorage.setItem('jarvis_visao', visao);
+
+  // 2. Atualiza o visual dos botões do seletor
+  const btnEst = document.getElementById('btn-estagiario');
+  const btnAdv = document.getElementById('btn-advogado');
+
+  if (btnEst && btnAdv) {
+    btnEst.classList.toggle('active', visao === 'estagiario');
+    btnAdv.classList.toggle('active', visao === 'advogado');
+  }
+
+  // 3. Mostra/esconde elementos exclusivos de cada visão
+  //    .view-estagiario → visível só na visão Estagiário
+  //    .view-advogado   → visível só na visão Advogado
+
+  document.querySelectorAll('.view-estagiario').forEach(el => {
+    el.classList.toggle('hidden', visao !== 'estagiario');
+  });
+
+  document.querySelectorAll('.view-advogado').forEach(el => {
+    el.classList.toggle('hidden', visao !== 'advogado');
+  });
+
+  // 4. Atualiza o label da topbar para indicar a visão ativa
+  const topbarStatus = document.querySelector('.topbar-status');
+  if (topbarStatus) {
+    const label = visao === 'advogado' ? '⚖ Visão Advogado' : '🎓 Visão Estagiário';
+    topbarStatus.innerHTML = `<div class="status-dot"></div><span>${label}</span>`;
+  }
+
+  // 5. Log no console para depuração (pode remover depois)
+  console.log('[JARVIS] Visão aplicada:', visao);
+}
+
+/**
+ * Inicializa a visão ao carregar a página.
+ * Lê o localStorage e aplica a última visão salva.
+ * Se não houver nada salvo, usa 'estagiario' como padrão.
+ */
+function inicializarVisao() {
+  const visaoSalva = localStorage.getItem('jarvis_visao') || 'estagiario';
+  aplicarVisao(visaoSalva);
+}
